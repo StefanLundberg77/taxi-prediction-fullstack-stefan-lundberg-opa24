@@ -1,1 +1,3 @@
-# taxi-prediction-fullstack-stefan-lundberg-opa24
+# taxi prediction lab
+
+TODO: add selling/marketing explanations of what this project is about
