@@ -5,7 +5,7 @@ import pandas as pd
 
 data = read_api_endpoint("taxi")
 
-df = pd.DataFrame(data.json())
+df = pd.DataFrame(data.json()) # converts api response -> list of json dicts
 
 
 def main():

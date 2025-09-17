@@ -1,0 +1,51 @@
+Project structure for directory: C:\Users\metal\skola\taxi-prediction-fullstack-stefan-lundberg-opa24
+
+├── 📂 explorations
+│   └── 📄 eda.ipynb
+├── 📄 file_name.txt
+├── 📄 README.md
+├── 📄 setup.py
+└── 📂 src
+    ├── 📂 taxipred
+    │   ├── 📂 backend
+    │   │   ├── 📄 api.py
+    │   │   ├── 📄 data_processing.py
+    │   │   ├── 📄 __init__.py
+    │   │   └── 📂 __pycache__
+    │   │       ├── 📄 api.cpython-312.pyc
+    │   │       ├── 📄 data_processing.cpython-312.pyc
+    │   │       └── 📄 __init__.cpython-312.pyc
+    │   ├── 📂 data
+    │   │   └── 📄 taxi_trip_pricing.csv
+    │   ├── 📂 frontend
+    │   │   ├── 📄 dashboard.py
+    │   │   └── 📄 __init__.py
+    │   ├── 📂 utils
+    │   │   ├── 📄 constants.py
+    │   │   ├── 📄 helpers.py
+    │   │   ├── 📄 __init__.py
+    │   │   └── 📂 __pycache__
+    │   │       ├── 📄 constants.cpython-312.pyc
+    │   │       ├── 📄 helpers.cpython-312.pyc
+    │   │       └── 📄 __init__.cpython-312.pyc
+    │   ├── 📄 __init__.py
+    │   └── 📂 __pycache__
+    │       └── 📄 __init__.cpython-312.pyc
+    └── 📂 taxipred.egg-info
+        ├── 📄 dependency_links.txt
+        ├── 📄 PKG-INFO
+        ├── 📄 requires.txt
+        ├── 📄 SOURCES.txt
+        └── 📄 top_level.txt
+
+
+Total directories 📂: 11
+Total files 📄: 26
+File extensions count:
+.ipynb : 1
+.txt : 5
+.md : 1
+.py : 10
+.pyc : 7
+.csv : 1
+no_ext : 1

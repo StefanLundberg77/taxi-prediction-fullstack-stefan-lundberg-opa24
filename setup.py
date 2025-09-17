@@ -4,6 +4,7 @@ from setuptools import find_packages
 # find_packages will find all the packages with __init__.py
 print(find_packages())
 
+# uv pip install -e . (if uv)
 setup(
     name="taxipred",
     version="0.0.1",
