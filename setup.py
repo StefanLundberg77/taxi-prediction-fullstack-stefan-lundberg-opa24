@@ -11,7 +11,7 @@ setup(
     description="this package contains taxipred app",
     author="Stefan Lundberg",
     author_email="bjorn.stefan.lundberg@gmail.com",
-    install_requires=["streamlit", "pandas", "fastapi", "uvicorn", "ipykernel", "matplotlib"],
+    install_requires=["streamlit", "pandas", "fastapi", "uvicorn", "ipykernel", "matplotlib", "seaborn"],
     package_dir={"": "src"},
     package_data={"taxipred": ["data/*.csv"]},
     packages=find_packages(),
