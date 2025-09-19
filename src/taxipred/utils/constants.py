@@ -1,5 +1,7 @@
 from importlib.resources import files
+import pandas as pd
 
 TAXI_CSV_PATH = files("taxipred").joinpath("data/taxi_trip_pricing.csv")
 
-# DATA_PATH = Path(__file__).parents[1] / "data"
+def get_taxi_data():
+    return pd.read_csv(TAXI_CSV_PATH)
