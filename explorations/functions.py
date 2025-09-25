@@ -2,15 +2,11 @@ import numpy as np
 import pandas as pd
 # Misc funktions
 
-# Method for handling outliers by removing or clipping
-def handle_outliers(df, cols, multiplier=1.5):
-    df_removed = df.copy()
+# Method for handling outliers by clipping
+def handle_outliers(df, multiplier=1.5):
     df_clipped = df.copy()
 
-    # Create a combined mask for all numeric columns
-    mask = pd.Series(True, index=df.index)
-
-    for col in cols:
+    for col in df:
         if df[col].dtype != 'object':
             Q1 = df[col].quantile(0.25)
             Q3 = df[col].quantile(0.75)
@@ -18,16 +14,9 @@ def handle_outliers(df, cols, multiplier=1.5):
             lower = Q1 - multiplier * IQR
             upper = Q3 + multiplier * IQR
 
-            # Update mask for removal
-            mask &= (df[col] >= lower) & (df[col] <= upper)
-
             # Clip values within bounds
             df_clipped[col] = np.clip(df[col], lower, upper)
-
-    # Apply final mask to remove rows with any numeric outliers
-    df_removed = df[mask]
-
-    return df_removed, df_clipped
+    return df
 
 # Method for Filling nulls with median or mean depending on value
 def fillna_mean_median(df):
@@ -45,7 +34,7 @@ def fillna_mean_median(df):
 def split_features_target(df, target_column="Trip_Price"):
     df = df.copy()
     df_target = df[[target_column]]
-
+    
     categorical_columns = df.select_dtypes(include=["object"]).columns
     df_categorical = df[categorical_columns]
 
