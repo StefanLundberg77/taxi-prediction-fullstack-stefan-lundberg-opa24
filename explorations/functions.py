@@ -4,18 +4,16 @@ import pandas as pd
 
 # Method for handling outliers by clipping
 def handle_outliers(df, multiplier=1.5):
-    df_clipped = df.copy()
+    df = df.copy()
+    for col in df.select_dtypes(include=["number"]):
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower = Q1 - multiplier * IQR
+        upper = Q3 + multiplier * IQR
 
-    for col in df:
-        if df[col].dtype != 'object':
-            Q1 = df[col].quantile(0.25)
-            Q3 = df[col].quantile(0.75)
-            IQR = Q3 - Q1
-            lower = Q1 - multiplier * IQR
-            upper = Q3 + multiplier * IQR
-
-            # Clip values within bounds
-            df_clipped[col] = np.clip(df[col], lower, upper)
+        # Clip values within bounds
+        df[col] = np.clip(df[col], lower, upper)         
     return df
 
 # Method for Filling nulls with median or mean depending on value
