@@ -55,9 +55,9 @@ def hyper_optimize(X_train, y_train,  model):
             best_model = grid.best_estimator_
             best_name = name
 
-        df_results = pd.DataFrame(results)
+        df = pd.DataFrame(results)
         
-    return df_results
+    return df
 
 # method for tuning/validating different estimators
 def train_evaluate(X_train, y_train, X_test, y_test, model): 
@@ -109,11 +109,11 @@ def generate_param_grid(model):
     }
     return grids.get(model, {})
 
-def tune_model(results_df, model_name, model): #wtf
+def tune_model(df, model): #wtf
 
-    row = results_df[results_df["Model"] == model_name]
+    row = df[df["Model"] == model]
     if row.empty:
-        raise ValueError(f"Modell '{model_name}' not fount")
+        raise ValueError(f"Modell '{model}' not fount")
     
     best_params = row.iloc[0]["Best Params"]
     if not isinstance(best_params, dict):
@@ -121,7 +121,7 @@ def tune_model(results_df, model_name, model): #wtf
     
     clean_params = {k.replace("model__", ""): v for k, v in best_params.items()}
     
-    original_model = model[model_name]["model"]
+    original_model = model[model]["model"]
     
     original_params = original_model.get_params()
     
