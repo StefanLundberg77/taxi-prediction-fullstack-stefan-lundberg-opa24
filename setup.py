@@ -16,3 +16,4 @@ setup(
     package_data={"taxipred": ["data/*.csv"]},
     packages=find_packages(),
 )
+# TODO: add requremts.txt on load
