@@ -8,7 +8,7 @@ import joblib
 import pandas as pd
 import numpy as np
 
-def hyper_optimize(X_train, y_train,  model): 
+def hyper_optimize(X_train, y_train, model): 
     
     models = model
     results = []
@@ -57,7 +57,7 @@ def hyper_optimize(X_train, y_train,  model):
 
         df = pd.DataFrame(results)
         
-    return df
+    return df, best_model, best_name
 
 # method for tuning/validating different estimators
 def train_evaluate(X_train, y_train, X_test, y_test, model): 
@@ -95,7 +95,7 @@ def generate_param_grid(model):
             "model__hidden_layer_sizes": [(64,), (128,), (64, 32)],
             "model__activation": ["relu", "tanh"],
             "model__solver": ["adam", "lbfgs"],
-            "model__learning_rate_init": list(np.linspace(0.001, 0.1, 5))
+            "model__learning_rate_init": [0.001, 0.1, 5]#list(np.linspace(0.001, 0.1, 5))
         },
         "xgb": {
             "model__n_estimators": [100, 200],
@@ -109,11 +109,11 @@ def generate_param_grid(model):
     }
     return grids.get(model, {})
 
-def tune_model(df, model): #wtf
+def tune_model(df, model_name, models): #wtf
 
-    row = df[df["Model"] == model]
+    row = df[df["Model"] == model_name]
     if row.empty:
-        raise ValueError(f"Modell '{model}' not fount")
+        raise ValueError(f"Model '{model_name}' not fount")
     
     best_params = row.iloc[0]["Best Params"]
     if not isinstance(best_params, dict):
@@ -121,12 +121,14 @@ def tune_model(df, model): #wtf
     
     clean_params = {k.replace("model__", ""): v for k, v in best_params.items()}
     
-    original_model = model[model]["model"]
+    original_model = models[model_name]["model"]
     
     original_params = original_model.get_params()
     
     combined_params = {**original_params, **clean_params}
     
-    return model(**combined_params)
+    tuned_model = type(original_model)(**combined_params)
+    
+    return tuned_model
 
 
