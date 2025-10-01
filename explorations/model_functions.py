@@ -2,79 +2,105 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import RandomizedSearchCV
+import time
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import joblib
 import pandas as pd
 import numpy as np
 
-def hyper_optimize(X_train, y_train, df): 
-    
+# method for crossvalidate, test benchmark
+def cv_test_benchmark(X_train, y_train, X_test, y_test, df_models):
     results = []
-    best_score = -float("inf")   # <-- initiera här
-    best_model = None
-    best_name = None
-    
-    for row in df.itertuples(index=False):
+
+    for row in df_models.itertuples(index=False):
         name  = row.name
         model = row.model
         scale = row.scale
+        
+        # list pipeline steps
         steps = []
-
-        if scale:  # if model need scaling
+        
+        # scale data if suited for model
+        if scale:
             steps.append(("scaler", StandardScaler()))
         steps.append(("model", model))
-          
-        #get/set params
-        parameters = generate_param_grid(name)
         pipeline = Pipeline(steps)
 
+        # #get params
+        parameters = generate_param_grid(name)
+        
         #search.fit(X_train, y_train)
         grid = GridSearchCV(pipeline, parameters, cv=3, scoring="r2", n_jobs=-1)
-        grid.fit(X_train, y_train)
-    
-        #score = search.best_score_
-        score = grid.best_score_
         
+        start = time.time()
+        
+        grid.fit(X_train, y_train)
+
+        elapsed = time.time() - start
+        
+        # best model with params
+        best_est = grid.best_estimator_
+
+        # cross‑validation score
+        cv_score = grid.best_score_
+
+        # test score
+        y_pred = best_est.predict(X_test)
+        mae = mean_absolute_error(y_test, y_pred)
+        mse = mean_squared_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        r2 = r2_score(y_test, y_pred)
+
         results.append({
             "model": name,
-            "best r2": score,
-            "best params": grid.best_params_
+            "cv_R2": round(cv_score, 3), # gridsearch score
+            "test_R2": round(r2, 3),
+            "delta_cv_test": round(r2 - cv_score, 3), # diff
+            "test_MAE": round(mae, 3),
+            "test_MSE": round(mse, 3),
+            "test_RMSE": round(rmse, 3),
+            "train_time_sec": round(elapsed, 2),
+            "best_params": grid.best_params_,
+            "best_estimator": best_est
         })
 
-        if score > best_score:
-            best_score = score
-            best_model = grid.best_estimator_
-            best_name = name
+    df_results = pd.DataFrame(results)
+    return df_results
 
-        df = pd.DataFrame(results)
-        
-    return df, best_model, best_name
 
 # method for tuning/validating different estimators
-def train_evaluate(X_train, y_train, X_test, y_test, model): 
+# def train_evaluate(X_train, y_train, X_test, y_test, df): 
+#     metrics = []
     
-    # train & predict model
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+#     for row in df.itertuples(index=False):
+#         model = row.model
+#         scale = row.scale
+#         steps = []
+    
+    #     if scale:  # if model need scaling
+    #         steps.append(("scaler", StandardScaler()))
+    #     steps.append(("model", model))
+    #     # train & predict model
+    #     model.fit(X_train, y_train)
+    #     y_pred = model.predict(X_test)
+        
+    #     # evaluate
+    #     mae = mean_absolute_error(y_test, y_pred)
+    #     mse = mean_squared_error(y_test, y_pred)
+    #     rmse = np.sqrt(mse)
+    #     r2 = r2_score(y_test, y_pred)
 
-    # evaluate
-    mae = mean_absolute_error(y_test, y_pred)
-    mse = mean_squared_error(y_test, y_pred)
-    rmse = np.sqrt(mse)
-    r2 = r2_score(y_test, y_pred)
-
-    # visualize results
-    metrics = {
-        "MAE": round(mae, 2),
-        "MSE": round(mse, 2),
-        "RMSE": round(rmse, 2),
-        "R2": round(r2, 2)
-    }
-    # Export model
-    # joblib.dump(model, model_path)
-    #return model, metrics
-    return model, metrics 
+    #     # visualize results
+    #     metrics.append = {
+    #         "MAE": round(mae, 2),
+    #         "MSE": round(mse, 2),
+    #         "RMSE": round(rmse, 2),
+    #         "R2": round(r2, 2)
+    #     }
+    #     # Export model
+    #     # joblib.dump(model, model_path)
+    #     #return model, metrics
+#     return model, metrics 
 
 def generate_param_grid(model):
     grids = {
