@@ -39,6 +39,15 @@ if __name__ == "__main__":
 #        'Trip_Price'],
 #       dtype='object')
 
+# drop(["Time_of_Day_Night",
+# "Time_of_Day_Evening",
+# "Time_of_Day_Morning",
+# "Day_of_Week_Weekend",
+# "Traffic_Conditions_Low",
+# "Weather_Clear",
+# "Traffic_Conditions_Medium"],
+# axis="columns"
+# )"
 
 # count	mean	std	min	25%	50%	75%	max
 # Trip_Distance_km	1000.0	26.153327	15.521566	1.23	13.1075	26.995000	37.7825	74.795

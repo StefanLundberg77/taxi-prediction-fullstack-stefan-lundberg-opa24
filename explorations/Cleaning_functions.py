@@ -33,8 +33,8 @@ def split_features_target(df, target_column="Trip_Price"):
     df = df.copy()
     
     # target
-    df_target = df[target_column]
-    
+    y = df[target_column]
+    df_target = df[[target_column]]
     # features
     df_features = df.drop(columns=[target_column])
     
@@ -46,6 +46,6 @@ def split_features_target(df, target_column="Trip_Price"):
     # Combine to X
     X = pd.concat([df_numeric, df_boolean, df_categorical], axis=1)
 
-    return X, df_numeric, df_boolean, df_categorical, df_target
+    return X, df_numeric, df_boolean, df_categorical, df_target, y
 
 
