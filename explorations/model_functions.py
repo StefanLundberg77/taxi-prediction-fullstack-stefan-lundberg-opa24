@@ -8,50 +8,42 @@ import joblib
 import pandas as pd
 import numpy as np
 
-def hyper_optimize(X_train, y_train, model): 
+def hyper_optimize(X_train, y_train, df): 
     
-    models = model
     results = []
+    best_score = -float("inf")   # <-- initiera här
     best_model = None
-    best_score = -float("inf")
+    best_name = None
     
-    for name, model in models.items():
+    for row in df.itertuples(index=False):
+        name  = row.name
+        model = row.model
+        scale = row.scale
         steps = []
-        if model["scale"]:
+
+        if scale:  # if model need scaling
             steps.append(("scaler", StandardScaler()))
-        steps.append(("model", model["model"]))
-        
-        # ensure y_train is 1D-array
-        # if hasattr(y_train, "values") and y_train.ndim == 2:
-        #     y_train = y_train.values.ravel()
-    
+        steps.append(("model", model))
+          
         #get/set params
         parameters = generate_param_grid(name)
         pipeline = Pipeline(steps)
-        #search = RandomizedSearchCV(
-        #     pipeline,
-        #     param_distributions=parameters,
-        #     n_iter=10000, # set correct
-        #     cv=3,
-        #     scoring="r2",
-        #     random_state=42,
-        #     n_jobs=-1
-        # )
+
         #search.fit(X_train, y_train)
         grid = GridSearchCV(pipeline, parameters, cv=3, scoring="r2", n_jobs=-1)
         grid.fit(X_train, y_train)
     
-        #random_score = search.best_score_
-        grid_score = grid.best_score_
+        #score = search.best_score_
+        score = grid.best_score_
         
         results.append({
-            "Model": name,
-            "Best R2": grid_score,
-            "Best Params": grid.best_params_
+            "model": name,
+            "best r2": score,
+            "best params": grid.best_params_
         })
 
-        if grid_score > best_score:
-            best_score = grid_score
+        if score > best_score:
+            best_score = score
             best_model = grid.best_estimator_
             best_name = name
 
@@ -95,7 +87,7 @@ def generate_param_grid(model):
             "model__hidden_layer_sizes": [(64,), (128,), (64, 32)],
             "model__activation": ["relu", "tanh"],
             "model__solver": ["adam", "lbfgs"],
-            "model__learning_rate_init": [0.001, 0.1, 5]#list(np.linspace(0.001, 0.1, 5))
+            "model__learning_rate_init": list(np.linspace(0.001, 0.1, 5))
         },
         "xgb": {
             "model__n_estimators": [100, 200],
@@ -109,26 +101,6 @@ def generate_param_grid(model):
     }
     return grids.get(model, {})
 
-def tune_model(df, model_name, models): #wtf
 
-    row = df[df["Model"] == model_name]
-    if row.empty:
-        raise ValueError(f"Model '{model_name}' not fount")
-    
-    best_params = row.iloc[0]["Best Params"]
-    if not isinstance(best_params, dict):
-        raise ValueError("Not a dictionary.")
-    
-    clean_params = {k.replace("model__", ""): v for k, v in best_params.items()}
-    
-    original_model = models[model_name]["model"]
-    
-    original_params = original_model.get_params()
-    
-    combined_params = {**original_params, **clean_params}
-    
-    tuned_model = type(original_model)(**combined_params)
-    
-    return tuned_model
 
 
