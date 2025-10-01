@@ -4,11 +4,10 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 import time
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-import joblib
 import pandas as pd
 import numpy as np
 
-# method for crossvalidate, test benchmark
+# method for crossvalidate, evaluate hyperparams and testresults
 def cv_test_benchmark(X_train, y_train, X_test, y_test, df_models):
     results = []
 
@@ -66,41 +65,6 @@ def cv_test_benchmark(X_train, y_train, X_test, y_test, df_models):
 
     df_results = pd.DataFrame(results)
     return df_results
-
-
-# method for tuning/validating different estimators
-# def train_evaluate(X_train, y_train, X_test, y_test, df): 
-#     metrics = []
-    
-#     for row in df.itertuples(index=False):
-#         model = row.model
-#         scale = row.scale
-#         steps = []
-    
-    #     if scale:  # if model need scaling
-    #         steps.append(("scaler", StandardScaler()))
-    #     steps.append(("model", model))
-    #     # train & predict model
-    #     model.fit(X_train, y_train)
-    #     y_pred = model.predict(X_test)
-        
-    #     # evaluate
-    #     mae = mean_absolute_error(y_test, y_pred)
-    #     mse = mean_squared_error(y_test, y_pred)
-    #     rmse = np.sqrt(mse)
-    #     r2 = r2_score(y_test, y_pred)
-
-    #     # visualize results
-    #     metrics.append = {
-    #         "MAE": round(mae, 2),
-    #         "MSE": round(mse, 2),
-    #         "RMSE": round(rmse, 2),
-    #         "R2": round(r2, 2)
-    #     }
-    #     # Export model
-    #     # joblib.dump(model, model_path)
-    #     #return model, metrics
-#     return model, metrics 
 
 def generate_param_grid(model):
     grids = {
