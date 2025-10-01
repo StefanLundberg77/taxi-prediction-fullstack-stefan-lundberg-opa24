@@ -31,14 +31,21 @@ def fillna_mean_median(df):
 # function for splitting up columns by target and dtypes
 def split_features_target(df, target_column="Trip_Price"):
     df = df.copy()
-    df_target = df[[target_column]]
     
-    categorical_columns = df.select_dtypes(include=["object"]).columns
-    df_categorical = df[categorical_columns]
+    # target
+    df_target = df[target_column]
+    
+    # features
+    df_features = df.drop(columns=[target_column])
+    
+    # separate dtypes
+    df_categorical = df_features.select_dtypes(include=["object", "category"])
+    df_boolean = df_features.select_dtypes(include=["bool"])
+    df_numeric = df_features.select_dtypes(include=["int64", "float64"])
 
-    numeric_columns = df.select_dtypes(include=["int64", "float64"]).columns.drop(target_column)
-    df_numeric = df[numeric_columns]
+    # Combine to X
+    X = pd.concat([df_numeric, df_boolean, df_categorical], axis=1)
 
-    return df_numeric, df_categorical, df_target
+    return X, df_numeric, df_boolean, df_categorical, df_target
 
 
