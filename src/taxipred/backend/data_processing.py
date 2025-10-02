@@ -38,6 +38,8 @@ class TaxiData:
     def to_json(self):
         return json.loads(self.df.to_json(orient = "records"))
     
+    
+    # trip price prediction method
     def predict(self, input_data: TaxiInput) -> PredictionOutput:
 
         # Convert input to DataFrame
@@ -48,24 +50,27 @@ class TaxiData:
         if "Trip_Price" in input_df.columns:
             input_df = input_df.drop(columns=["Trip_Price"])
 
-        # Predict
-        prediction = self.model.predict(input_df)[0]
-        return PredictionOutput(predicted_trip_price=round(float(prediction), 2))
+        conversion_rate = fetch_currency_rate()
+        
+        # Prediction
+        price_prediction = self.model.predict(input_df)[0]
+        return PredictionOutput(predicted_trip_price=round(float(price_prediction) * conversion_rate, 2))
 
 
-    def fetch_currency_rate(api_key: str) -> float:
+    # method: fetch current currency rate from api
+    def fetch_currency_rate(default_rate: float = 10.0) -> float:
         url = "https://api.fastforex.io/fetch-one"
         params = {"from": "USD", "to": "SEK"}
         headers = {"X-API-Key": os.getenv("FASTFOREX_API_KEY")}
 
-        response = requests.get(url, headers=headers, params=params)
-        data = response.json()
-
         try:
+            response = requests.get(url, headers=headers, params=params, timeout=5) # timeout incase slow responce or no api key
+            response.raise_for_status()
+            data = response.json()
             return float(data["result"]["SEK"])
-        except (KeyError, ValueError):
-            raise RuntimeError("Unable to fetch currency rate from API.")
-
+        except Exception as e:
+            print(f" Unable to fetch currency rate from API: {e}. Using fallback rate ({default_rate} USD/SEK).")
+        return default_rate
 
 
 
