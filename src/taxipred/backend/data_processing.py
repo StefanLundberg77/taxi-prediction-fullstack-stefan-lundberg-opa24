@@ -3,6 +3,13 @@ from pydantic import BaseModel, Field
 import pandas as pd
 import json
 from pprint import pprint
+from dotenv import load_dotenv
+import os
+import requests
+
+# load .env file
+load_dotenv() 
+
 
 class TaxiInput(BaseModel):
     Trip_Distance_km: float = Field(ge=1, le=10000)
@@ -10,17 +17,19 @@ class TaxiInput(BaseModel):
     Per_Km_Rate: float = Field(ge=0, le=10)
     Per_Minute_Rate: float = Field(ge=0, le=10)
     Trip_Duration_Minutes: float = Field(ge=0, le=10000)
-    Time_of_Day_Afternoon: str
-    Day_of_Week_Weekday: str
-    Traffic_Conditions_High: str
-    Weather_Rain: str
-    Weather_Snow: str
-    Trip_Price: float    # refactor to SEK
-
+    Day_of_Week_Weekday: bool
+    Traffic_Conditions_High: bool
+    Weather_Rain: bool
+    Weather_Snow: bool
+    Day_of_Week_Weekday: bool
+    Passenger_Count: float = Field(ge=0, le=9)
+    Time_of_Day_Afternoon: bool
+    Traffic_Conditions_High: bool
 
 class PredictionOutput(BaseModel):
-    predicted_trip_price: float = Field(..., description="Predicted price")
+    predicted_trip_price: float = Field(ge=0.1, description="Predicted price in SEK.")
 
+    
 class TaxiData:
     def __init__(self):
         self.df = get_clean_data()
@@ -29,16 +38,73 @@ class TaxiData:
     def to_json(self):
         return json.loads(self.df.to_json(orient = "records"))
     
-    
+    def predict(self, input_data: TaxiInput) -> PredictionOutput:
+
+        # Convert input to DataFrame
+        input = input_data#
+        input_df = pd.DataFrame([input]) #input type?
+
+        # Remove  
+        if "Trip_Price" in input_df.columns:
+            input_df = input_df.drop(columns=["Trip_Price"])
+
+        # Predict
+        prediction = self.model.predict(input_df)[0]
+        return PredictionOutput(predicted_trip_price=round(float(prediction), 2))
+
+
+    def fetch_currency_rate(api_key: str) -> float:
+        url = "https://api.fastforex.io/fetch-one"
+        params = {"from": "USD", "to": "SEK"}
+        headers = {"X-API-Key": os.getenv("FASTFOREX_API_KEY")}
+
+        response = requests.get(url, headers=headers, params=params)
+        data = response.json()
+
+        try:
+            return float(data["result"]["SEK"])
+        except (KeyError, ValueError):
+            raise RuntimeError("Unable to fetch currency rate from API.")
+
 
 
 
 
 if __name__ == "__main__":
     taxi_data = TaxiData()
-    pprint(taxi_data.to_json())
-
+    #pprint(taxi_data.to_json())
     
+    payload = {
+        "Trip_Distance_km": 12,
+        "Passenger_Count" : 2,
+        "Base_Fare": 2,
+        "Per_Km_Rate": 2,
+        "Per_Minute_Rate": 0.5,
+        "Trip_Duration_Minutes": 32, 
+        "Time_of_Day_Afternoon": True,
+        "Day_of_Week_Weekday": False,
+        "Traffic_Conditions_High": False,
+        "Weather_Rain": True,
+        "Weather_Snow": False,
+    }
+    
+    pprint(taxi_data.predict(payload))
+
+
+#  #   Column                   Non-Null Count  Dtype  
+# ---  ------                   --------------  -----  
+#  0   Trip_Distance_km         1000 non-null   float64
+#  1   Passenger_Count          1000 non-null   float64
+#  2   Base_Fare                1000 non-null   float64
+#  3   Per_Km_Rate              1000 non-null   float64
+#  4   Per_Minute_Rate          1000 non-null   float64
+#  5   Trip_Duration_Minutes    1000 non-null   float64
+#  6   Time_of_Day_Afternoon    1000 non-null   bool   
+#  7   Day_of_Week_Weekday      1000 non-null   bool   
+#  8   Traffic_Conditions_High  1000 non-null   bool   
+#  9   Weather_Rain             1000 non-null   bool   
+#  10  Weather_Snow             1000 non-null   bool   
+#  11  Trip_Price               1000 non-null   float64
     
 # Index(['Trip_Distance_km', 'Base_Fare', 'Per_Km_Rate', 'Per_Minute_Rate',
 #        'Trip_Duration_Minutes', 'Time_of_Day_Afternoon', 'Day_of_Week_Weekday',
