@@ -34,10 +34,32 @@ class TaxiData:
     def __init__(self):
         self.df = get_clean_data()
         self.model = get_taxi_model()
+        self.conversion_rate = self.fetch_currency_rate()
 
     def to_json(self):
         return json.loads(self.df.to_json(orient = "records"))
     
+    # method: fetch current currency rate from api
+    def fetch_currency_rate(default_rate: float = 10.0) -> float:
+        api_key = os.getenv("FASTFOREX_API_KEY")
+
+        # incase api key missing use set rate
+        if not api_key:
+            print(f"API-key not found. Using fallback rate ({default_rate} USD/SEK).")
+            return default_rate
+        
+        url = "https://api.fastforex.io/fetch-one"
+        params = {"from": "USD", "to": "SEK"}
+        headers = {"X-API-Key": api_key}
+
+        try:
+            response = requests.get(url, headers=headers, params=params, timeout=5) # timeout incase slow responce 
+            response.raise_for_status()
+            data = response.json()
+            return float(data["result"]["SEK"])
+        except Exception as e:
+            print(f" Unable to fetch currency rate from API: {e}. Using fallback rate ({default_rate} USD/SEK).")
+        return default_rate
     
     # trip price prediction method
     def predict(self, input_data: TaxiInput) -> PredictionOutput:
@@ -49,28 +71,15 @@ class TaxiData:
         # Remove  
         if "Trip_Price" in input_df.columns:
             input_df = input_df.drop(columns=["Trip_Price"])
-
-        conversion_rate = fetch_currency_rate()
         
         # Prediction
         price_prediction = self.model.predict(input_df)[0]
-        return PredictionOutput(predicted_trip_price=round(float(price_prediction) * conversion_rate, 2))
+        sek_price = round(float(price_prediction) * self.conversion_rate, 2)
+
+        return PredictionOutput(predicted_trip_price=sek_price)
 
 
-    # method: fetch current currency rate from api
-    def fetch_currency_rate(default_rate: float = 10.0) -> float:
-        url = "https://api.fastforex.io/fetch-one"
-        params = {"from": "USD", "to": "SEK"}
-        headers = {"X-API-Key": os.getenv("FASTFOREX_API_KEY")}
 
-        try:
-            response = requests.get(url, headers=headers, params=params, timeout=5) # timeout incase slow responce or no api key
-            response.raise_for_status()
-            data = response.json()
-            return float(data["result"]["SEK"])
-        except Exception as e:
-            print(f" Unable to fetch currency rate from API: {e}. Using fallback rate ({default_rate} USD/SEK).")
-        return default_rate
 
 
 
