@@ -11,9 +11,10 @@ setup(
     description="this package contains taxipred app",
     author="Stefan Lundberg",
     author_email="bjorn.stefan.lundberg@gmail.com",
-    install_requires=["streamlit", "pandas", "fastapi", "uvicorn", "ipykernel", "matplotlib", "seaborn"],
+    install_requires=["streamlit", "pandas", "fastapi", "uvicorn", "ipykernel", "matplotlib", "seaborn"], # run requirements on setup?
     package_dir={"": "src"},
-    package_data={"taxipred": ["data/*.csv"]},
+    package_data={"taxipred": ["data/*.csv", "models/*.joblib"]},
     packages=find_packages(),
 )
 # TODO: add requremts.txt on load
+

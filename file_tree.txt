@@ -1,36 +1,45 @@
-Project structure for directory: C:\Users\metal\skola\taxi-prediction-fullstack-stefan-lundberg-opa24
+Project structure for directory: C:\Users\metal\Skola\course\taxi-prediction-fullstack-stefan-lundberg-opa24
 
 ├── 📂 explorations
-│   └── 📄 eda.ipynb
-├── 📄 file_name.txt
+│   ├── 📄 Cleaning_functions.py
+│   ├── 📄 data_cleaning.ipynb
+│   ├── 📄 eda.ipynb
+│   ├── 📄 model.ipynb
+│   ├── 📂 models
+│   │   └── 📄 xgb_model.joblib
+│   ├── 📄 model_functions.py
+│   └── 📂 __pycache__
+│       ├── 📄 Cleaning_functions.cpython-313.pyc
+│       ├── 📄 functions.cpython-313.pyc
+│       └── 📄 model_functions.cpython-313.pyc
+├── 📄 file_tree.txt
 ├── 📄 README.md
+├── 📄 requirements.txt
+├── 📄 scratchbook.txt
 ├── 📄 setup.py
 └── 📂 src
     ├── 📂 taxipred
     │   ├── 📂 backend
     │   │   ├── 📄 api.py
     │   │   ├── 📄 data_processing.py
-    │   │   ├── 📄 __init__.py
-    │   │   └── 📂 __pycache__
-    │   │       ├── 📄 api.cpython-312.pyc
-    │   │       ├── 📄 data_processing.cpython-312.pyc
-    │   │       └── 📄 __init__.cpython-312.pyc
+    │   │   └── 📄 __init__.py
     │   ├── 📂 data
+    │   │   ├── 📄 cleaned_data.csv
     │   │   └── 📄 taxi_trip_pricing.csv
     │   ├── 📂 frontend
     │   │   ├── 📄 dashboard.py
+    │   │   ├── 📄 frontend.py
     │   │   └── 📄 __init__.py
     │   ├── 📂 utils
     │   │   ├── 📄 constants.py
     │   │   ├── 📄 helpers.py
     │   │   ├── 📄 __init__.py
     │   │   └── 📂 __pycache__
-    │   │       ├── 📄 constants.cpython-312.pyc
-    │   │       ├── 📄 helpers.cpython-312.pyc
-    │   │       └── 📄 __init__.cpython-312.pyc
+    │   │       ├── 📄 constants.cpython-313.pyc
+    │   │       └── 📄 __init__.cpython-313.pyc
     │   ├── 📄 __init__.py
     │   └── 📂 __pycache__
-    │       └── 📄 __init__.cpython-312.pyc
+    │       └── 📄 __init__.cpython-313.pyc
     └── 📂 taxipred.egg-info
         ├── 📄 dependency_links.txt
         ├── 📄 PKG-INFO
@@ -39,13 +48,14 @@ Project structure for directory: C:\Users\metal\skola\taxi-prediction-fullstack-
         └── 📄 top_level.txt
 
 
-Total directories 📂: 11
-Total files 📄: 26
+Total directories 📂: 12
+Total files 📄: 34
 File extensions count:
-.ipynb : 1
-.txt : 5
+.py : 13
+.ipynb : 3
+.joblib : 1
+.pyc : 6
+.txt : 7
 .md : 1
-.py : 10
-.pyc : 7
-.csv : 1
+.csv : 2
 no_ext : 1

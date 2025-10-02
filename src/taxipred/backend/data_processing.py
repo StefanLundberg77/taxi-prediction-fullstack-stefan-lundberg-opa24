@@ -1,15 +1,8 @@
-from taxipred.utils.constants import get_clean_data
+from taxipred.utils.constants import get_clean_data, get_taxi_model
 from pydantic import BaseModel, Field
 import pandas as pd
 import json
 from pprint import pprint
-
-class TaxiData:
-    def __init__(self):
-        self.df = get_clean_data()
-
-    def to_json(self):
-        return json.loads(self.df.to_json(orient = "records"))
 
 class TaxiInput(BaseModel):
     Trip_Distance_km: float = Field(ge=1, le=10000)
@@ -23,14 +16,28 @@ class TaxiInput(BaseModel):
     Weather_Rain: str
     Weather_Snow: str
     Trip_Price: float    # refactor to SEK
- 
 
-class PredictionOutput():
-    predicted_trip_price: float
+
+class PredictionOutput(BaseModel):
+    predicted_trip_price: float = Field(..., description="Predicted price")
+
+class TaxiData:
+    def __init__(self):
+        self.df = get_clean_data()
+        self.model = get_taxi_model()
+
+    def to_json(self):
+        return json.loads(self.df.to_json(orient = "records"))
     
+    
+
+
+
+
 if __name__ == "__main__":
     taxi_data = TaxiData()
     pprint(taxi_data.to_json())
+
     
     
 # Index(['Trip_Distance_km', 'Base_Fare', 'Per_Km_Rate', 'Per_Minute_Rate',
