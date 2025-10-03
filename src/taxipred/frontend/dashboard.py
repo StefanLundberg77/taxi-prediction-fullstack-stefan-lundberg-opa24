@@ -9,7 +9,6 @@ df = pd.DataFrame(data.json())
 
 def layout():
     st.markdown("# Get Hitched")
-    st.dataframe(df)
     
     with st.form("data"):
         origin = st.text_input("Pick up adress")
@@ -17,25 +16,26 @@ def layout():
         submitted = st.form_submit_button("Get price prediction")
     
     if submitted:
-        distance_km, duration_min = get_distance_duration(origin, destination)
-        if distance_km is not None and duration_min is not None:
-            st.success(f"Distance: {distance_km:.2f} km")
-            st.info(f"Travel time: {duration_min:.1f} minutes")
-        now = datetime.now()
-        payload = {
-                "Trip_Distance_km": distance_km,
-                "Trip_Duration_Minutes": duration_min,
-                "Time_of_Day_Afternoon": 12 <= now.hour < 18,
-                "Day_of_Week_Weekday": now.weekday() < 5,
-                "Base_Fare": 3.5,
-                "Per_Km_Rate": 1.2,
-                "Per_Minute_Rate": 0.3,
-                "Passenger_Count": 2,
-                "Traffic_Conditions_High": False,
-                "Weather_Rain": False,
-                "Weather_Snow": False
-            }
-        
+        if origin and destination:
+            distance_km, duration_min = get_distance_duration(origin, destination)
+            if distance_km is not None and duration_min is not None:
+                st.success(f"Distance: {distance_km:.2f} km")
+                st.info(f"Travel time: {duration_min:.1f} minutes")
+                now = datetime.now()
+                payload = {
+                        "Trip_Distance_km": distance_km,
+                        "Trip_Duration_Minutes": duration_min,
+                        "Time_of_Day_Afternoon": 12 <= now.hour < 18,
+                        "Day_of_Week_Weekday": now.weekday() < 5,
+                        "Base_Fare": 3.5,
+                        "Per_Km_Rate": 1.2,
+                        "Per_Minute_Rate": 0.3,
+                        "Passenger_Count": 2,
+                        "Traffic_Conditions_High": False,
+                        "Weather_Rain": False,
+                        "Weather_Snow": False
+                    }
+
         #response = post_api_endpoint(payload, endpoint="/api/predict")
         #predicted_ = response.json().get("predicted_")
         response = post_api_endpoint(payload, endpoint="/api/predict")
@@ -44,10 +44,10 @@ def layout():
             st.success(f"Price: {predicted_price} SEK")
         else:
             st.error("Unable to get predicted price")
-    else:
-        st.error("Unable to get distance or duration") # Refrase
+
 
     st.markdown("## Raw data") # for testing
+    st.dataframe(df)
 
 
 if __name__ == '__main__':
