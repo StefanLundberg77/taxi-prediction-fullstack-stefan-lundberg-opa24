@@ -1,7 +1,5 @@
 from fastapi import FastAPI
 from taxipred.backend.data_processing import TaxiData, TaxiInput, PredictionOutput
-from taxipred.utils.constants import get_taxi_model
-import pandas as pd
 
 app = FastAPI()
 taxi_data = TaxiData()

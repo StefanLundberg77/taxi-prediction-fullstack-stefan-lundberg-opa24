@@ -4,8 +4,7 @@ import pandas as pd
 import json
 from pprint import pprint
 from dotenv import load_dotenv
-import os
-import requests
+from taxipred.utils.helpers import get_currency_rate
 
 # load .env file with api key etc.
 load_dotenv() 
@@ -32,32 +31,16 @@ class TaxiData:
     def __init__(self):
         self.df = get_clean_data()
         self.model = get_taxi_model()
-        self.conversion_rate = self.fetch_currency_rate()
+        self.conversion_rate = get_currency_rate()
 
     def to_json(self):
         return json.loads(self.df.to_json(orient = "records"))
-    
-    # method: fetch current currency rate from api
-    def fetch_currency_rate(default_rate: float = 10.0) -> float:
-        api_key = os.getenv("FASTFOREX_API_KEY")
-
-        # incase api key missing use set rate
-        if not api_key:
-            print(f"API-key not found. Using fallback rate ({default_rate} USD/SEK).")
-            return default_rate
         
-        url = "https://api.fastforex.io/fetch-one"
-        params = {"from": "USD", "to": "SEK"}
-        headers = {"X-API-Key": api_key}
-
-        try:
-            response = requests.get(url, headers=headers, params=params, timeout=5) # timeout incase slow responce 
-            response.raise_for_status()
-            data = response.json()
-            return float(data["result"]["SEK"])
-        except Exception as e:
-            print(f" Unable to fetch currency rate from API: {e}. Using fallback rate ({default_rate} USD/SEK).")
-        return default_rate
+    # https://maps.googleapis.com/maps/api/distancematrix/json
+    # ?destinations=New%20York%20City%2C%20NY
+    # &origins=Washington%2C%20DC
+    # &units=imperial
+    # &key=YOUR_API_KEY
     
     # trip price prediction method
     def predict(self, input_data: TaxiInput) -> PredictionOutput:
@@ -65,7 +48,6 @@ class TaxiData:
         # Convert input to DataFrame
         input_dict = input_data.model_dump()
         input_df = pd.DataFrame([input_dict])
-
 
         # Remove  
         if "Trip_Price" in input_df.columns:
@@ -77,6 +59,10 @@ class TaxiData:
 
         return PredictionOutput(predicted_trip_price=sek_price)
 
+# TODO: 
+#- finish distance_duration
+#- weather api?
+#- traffic condition api?  
 
 if __name__ == "__main__":
     taxi_data = TaxiData()

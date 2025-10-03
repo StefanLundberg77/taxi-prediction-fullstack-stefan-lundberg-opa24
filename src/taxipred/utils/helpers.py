@@ -1,7 +1,11 @@
 import requests 
 from urllib.parse import urljoin
 from pprint import pprint
+from datetime import datetime
+from dotenv import load_dotenv
+import os
 
+load_dotenv() 
 
 def read_api_endpoint(endpoint = "/", base_url = "http://127.0.0.1:8000"):
     url = urljoin(base_url, endpoint) # adds the str endpoint and a endpoint "/" if missing
@@ -15,21 +19,98 @@ def post_api_endpoint(payload, endpoint = "/", base_url = "http://127.0.0.1:8000
     
     return response
 
-if __name__ == '__main__':
-    
-    payload = {
-    "Trip_Distance_km": 12,
-    "Passenger_Count": 2,
-    "Base_Fare": 2,
-    "Per_Km_Rate": 2,
-    "Per_Minute_Rate": 0.5,
-    "Trip_Duration_Minutes": 32,
-    "Time_of_Day_Afternoon": True,
-    "Day_of_Week_Weekday": False,
-    "Traffic_Conditions_High": False,
-    "Weather_Rain": True,
-    "Weather_Snow": False
-    }
+# method: fetch current currency rate from api
+def get_currency_rate(self, default_rate: float = 10.0) -> float:
+    api_key = os.getenv("FASTFOREX_API_KEY")
 
-# response = post_api_endpoint(payload, endpoint="/api/predict")
-# pprint(response.json())
+    # incase api key missing use set rate
+    if not api_key:
+        print(f"API-key not found. Using fallback rate ({default_rate} USD/SEK).")
+        return default_rate
+    
+    url = "https://api.fastforex.io/fetch-one"
+    params = {"from": "USD", "to": "SEK"}
+    headers = {"X-API-Key": api_key}
+
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=5) # timeout incase slow responce 
+        response.raise_for_status()
+        data = response.json()
+        return float(data["result"]["SEK"])
+    except Exception as e:
+        print(f" Unable to fetch currency rate from API: {e}. Using fallback rate ({default_rate} USD/SEK).")
+        return default_rate
+    
+# input 2 adresses and get distance and estimated trip duration from google maps
+def get_distance_duration(origin, destination):
+    api_key = os.getenv("GOOGLE_MAPS_KEY")
+    url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+    parameters = {
+        "origins": origin,
+        "destinations": destination,
+        "units": "metric",
+        "key": api_key            
+    }
+    response = requests.get(url, parameters)
+    data = response.json()
+    
+    try:
+        element = data["rows"][0]["elements"][0]
+        distance_km = element["distance"]["value"] / 1000  # meters to km
+        duration_min = element["duration"]["value"] / 60   # seconds to minutes
+        return distance_km, duration_min
+    except Exception as e:
+        print("Error:", e)
+        return None, None
+    
+    import requests
+    
+from datetime import datetime
+import os
+
+def get_distance_duration(origin, destination, api_key=None):
+    if api_key is None:
+        api_key = os.getenv("GOOGLE_MAPS_KEY")
+
+    url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+    params = {
+        "origins": origin,
+        "destinations": destination,
+        "key": api_key,
+        "units": "metric"
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    try:
+        rows = data.get("rows", [])
+        if not rows or not rows[0].get("elements"):
+            return None, None
+
+        element = rows[0]["elements"][0]
+        distance_km = element["distance"]["value"] / 1000
+        duration_min = element["duration"]["value"] / 60
+        return distance_km, duration_min
+    except Exception as e:
+        print("Fel vid tolkning:", e)
+        return None, None
+
+
+def get_currency_rate(default_rate=10.0):
+    api_key = os.getenv("FASTFOREX_API_KEY")
+    if not api_key:
+        print(f"API-key saknas. Använder fallback ({default_rate} USD/SEK).")
+        return default_rate
+
+    url = "https://api.fastforex.io/fetch-one"
+    params = {"from": "USD", "to": "SEK"}
+    headers = {"X-API-Key": api_key}
+
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        return float(data["result"]["SEK"])
+    except Exception as e:
+        print(f"Misslyckades hämta valutakurs: {e}. Använder fallback.")
+        return default_rate
