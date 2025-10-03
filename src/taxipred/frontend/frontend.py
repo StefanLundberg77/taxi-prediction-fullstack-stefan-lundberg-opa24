@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from src.taxipred.utils.helpers import read_api_endpoint, post_api_endpoint
+from taxipred.utils.helpers import read_api_endpoint, post_api_endpoint
 
 data = read_api_endpoint("/api")
 df = pd.DataFrame(data.json())
@@ -8,13 +8,13 @@ df = pd.DataFrame(data.json())
 # TODO: try to predict...
 
 def layout():
-    st.markdown("# ")
+    st.markdown("# Get Hitched")
     st.markdown("## Raw data")
     st.dataframe(df)
     
     with st.form("data"):
-        placeholder = st.number_input(
-            "placeholder", min_value=4, max_value=9,
+        Trip = st.number_input(
+            "Where do you want to go", min_value=4, max_value=9,
         )
         submitted = st.form_submit_button("Predict")
     

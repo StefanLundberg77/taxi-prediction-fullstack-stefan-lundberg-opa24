@@ -6,21 +6,27 @@ import pandas as pd
 app = FastAPI()
 taxi_data = TaxiData()
 
+# root page message
+@app.get("/")
+def root():
+    return {"Taxi prediction API is runnin /docs for swagger UIcd .."}
+
+# endpoint return data in json format and limited to 100 rows
 @app.get("/api/")
 async def read_taxi_data():
-    return taxi_data.to_json()
+    return taxi_data.df.head(100).to_dict(orient="records")
 
+# endpoint use predict method from taxi class   
 @app.post("/api/predict", response_model=PredictionOutput)
 def predict_price(payload: TaxiInput):
-    data_to_predict = pd.DataFrame([payload.model_dump()])
-    clf = get_taxi_model()
-    prediction = clf.predict(data_to_predict)
-    return {"predicted_price": prediction[0]}
-    
+    return taxi_data.predict(payload)
 
 
 
 
+
+# TODO: 
+    # - start and shutdown handling?
 
 
 # @app.post("/api/predict", response_model=PredictionOutput)

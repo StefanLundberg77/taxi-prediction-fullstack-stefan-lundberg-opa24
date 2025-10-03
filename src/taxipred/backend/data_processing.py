@@ -7,24 +7,22 @@ from dotenv import load_dotenv
 import os
 import requests
 
-# load .env file
+# load .env file with api key etc.
 load_dotenv() 
 
 
 class TaxiInput(BaseModel):
     Trip_Distance_km: float = Field(ge=1, le=10000)
+    Passenger_Count: float = Field(ge=0, le=9)
     Base_Fare: float = Field(ge=1, le=10)
     Per_Km_Rate: float = Field(ge=0, le=10)
     Per_Minute_Rate: float = Field(ge=0, le=10)
     Trip_Duration_Minutes: float = Field(ge=0, le=10000)
+    Time_of_Day_Afternoon: bool
     Day_of_Week_Weekday: bool
     Traffic_Conditions_High: bool
     Weather_Rain: bool
     Weather_Snow: bool
-    Day_of_Week_Weekday: bool
-    Passenger_Count: float = Field(ge=0, le=9)
-    Time_of_Day_Afternoon: bool
-    Traffic_Conditions_High: bool
 
 class PredictionOutput(BaseModel):
     predicted_trip_price: float = Field(ge=0.1, description="Predicted price in SEK.")
@@ -65,8 +63,9 @@ class TaxiData:
     def predict(self, input_data: TaxiInput) -> PredictionOutput:
 
         # Convert input to DataFrame
-        input = input_data#
-        input_df = pd.DataFrame([input]) #input type?
+        input_dict = input_data.model_dump()
+        input_df = pd.DataFrame([input_dict])
+
 
         # Remove  
         if "Trip_Price" in input_df.columns:
@@ -79,30 +78,29 @@ class TaxiData:
         return PredictionOutput(predicted_trip_price=sek_price)
 
 
-
-
-
-
-
 if __name__ == "__main__":
     taxi_data = TaxiData()
     #pprint(taxi_data.to_json())
     
-    payload = {
-        "Trip_Distance_km": 12,
-        "Passenger_Count" : 2,
-        "Base_Fare": 2,
-        "Per_Km_Rate": 2,
-        "Per_Minute_Rate": 0.5,
-        "Trip_Duration_Minutes": 32, 
-        "Time_of_Day_Afternoon": True,
-        "Day_of_Week_Weekday": False,
-        "Traffic_Conditions_High": False,
-        "Weather_Rain": True,
-        "Weather_Snow": False,
-    }
+    # payload = {
+    #     "Trip_Distance_km": 12,
+    #     "Passenger_Count" : 2,
+    #     "Base_Fare": 2,
+    #     "Per_Km_Rate": 2,
+    #     "Per_Minute_Rate": 0.5,
+    #     "Trip_Duration_Minutes": 32, 
+    #     "Time_of_Day_Afternoon": True,
+    #     "Day_of_Week_Weekday": False,
+    #     "Traffic_Conditions_High": False,
+    #     "Weather_Rain": True,
+    #     "Weather_Snow": False
+    # }
     
-    pprint(taxi_data.predict(payload))
+
+
+# input_obj = TaxiInput(**payload)
+# pprint(taxi_data.predict(input_obj))
+
 
 
 #  #   Column                   Non-Null Count  Dtype  
