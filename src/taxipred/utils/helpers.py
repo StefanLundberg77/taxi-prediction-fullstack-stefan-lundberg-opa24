@@ -40,6 +40,7 @@ def get_currency_rate(self, default_rate: float = 10.0) -> float:
     except Exception as e:
         print(f" Unable to fetch currency rate from API: {e}. Using fallback rate ({default_rate} USD/SEK).")
         return default_rate
+
     
 # input 2 adresses and get distance and estimated trip duration from google maps
 def get_distance_duration(origin, destination):
@@ -61,38 +62,6 @@ def get_distance_duration(origin, destination):
         return distance_km, duration_min
     except Exception as e:
         print("Error:", e)
-        return None, None
-    
-    import requests
-    
-from datetime import datetime
-import os
-
-def get_distance_duration(origin, destination, api_key=None):
-    if api_key is None:
-        api_key = os.getenv("GOOGLE_MAPS_KEY")
-
-    url = "https://maps.googleapis.com/maps/api/distancematrix/json"
-    params = {
-        "origins": origin,
-        "destinations": destination,
-        "key": api_key,
-        "units": "metric"
-    }
-    response = requests.get(url, params=params)
-    data = response.json()
-
-    try:
-        rows = data.get("rows", [])
-        if not rows or not rows[0].get("elements"):
-            return None, None
-
-        element = rows[0]["elements"][0]
-        distance_km = element["distance"]["value"] / 1000
-        duration_min = element["duration"]["value"] / 60
-        return distance_km, duration_min
-    except Exception as e:
-        print("Fel vid tolkning:", e)
         return None, None
 
 

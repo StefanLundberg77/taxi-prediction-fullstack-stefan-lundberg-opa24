@@ -8,12 +8,27 @@ df = pd.DataFrame(data.json())
 
 
 def layout():
-    st.markdown("# Get Hitched")
+    st.markdown("""
+    <style>
+    body {
+        background-color: #1e1e1e;
+        color: white;
+    }
+    </style>
+    """,
+        unsafe_allow_html=True
+    )
     
+    
+
+    st.markdown("""
+                :red[Streamlit] :orange[can] :green[write] :blue[text] :violet[in]
+                """
+    )    
     with st.form("data"):
         origin = st.text_input("Pick up adress")
         destination = st.text_input("Destination adress")
-        submitted = st.form_submit_button("Get price prediction")
+        submitted = st.form_submit_button("Get price prediction") # add func so it doens crash if not input
     
     if submitted:
         if origin and destination:
@@ -35,7 +50,6 @@ def layout():
                         "Weather_Rain": False,
                         "Weather_Snow": False
                     }
-
         #response = post_api_endpoint(payload, endpoint="/api/predict")
         #predicted_ = response.json().get("predicted_")
         response = post_api_endpoint(payload, endpoint="/api/predict")
@@ -44,10 +58,17 @@ def layout():
             st.success(f"Price: {predicted_price} SEK")
         else:
             st.error("Unable to get predicted price")
-
-
-    st.markdown("## Raw data") # for testing
-    st.dataframe(df)
+    else:
+        st.warning("Enter pickup/destination")
+    
+    # st.sidebar.title("""
+    #                  :red[Settings]
+    #                  """)
+    # Passenger_Count = st.sidebar.slider("Number of passangers", 1, 6, 2)
+    
+    
+    # st.markdown("## Raw data") # for testing
+    # st.dataframe(df)
 
 
 if __name__ == '__main__':
