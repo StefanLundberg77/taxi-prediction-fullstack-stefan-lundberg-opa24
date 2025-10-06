@@ -65,24 +65,9 @@ def get_distance_duration(origin, destination):
         return None, None
 
 
-def get_currency_rate(default_rate=10.0):
-    api_key = os.getenv("FASTFOREX_API_KEY")
-    if not api_key:
-        print(f"API-key saknas. Använder fallback ({default_rate} USD/SEK).")
-        return default_rate
+def 
 
-    url = "https://api.fastforex.io/fetch-one"
-    params = {"from": "USD", "to": "SEK"}
-    headers = {"X-API-Key": api_key}
 
-    try:
-        response = requests.get(url, headers=headers, params=params, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-        return float(data["result"]["SEK"])
-    except Exception as e:
-        print(f"Misslyckades hämta valutakurs: {e}. Använder fallback.")
-        return default_rate
 
 
 # TODO: 

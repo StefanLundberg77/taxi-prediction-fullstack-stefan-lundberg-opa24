@@ -8,6 +8,8 @@ CLEAN_CSV_PATH = files("taxipred").joinpath("data/cleaned_data.csv")
 
 TAXI_MODEL_PATH = files("taxipred").joinpath("models/xgb_model.joblib")
 
+MISSING_LABEL_PATH = files("Ta")
+
 def get_taxi_data():
     return pd.read_csv(TAXI_CSV_PATH)
 
