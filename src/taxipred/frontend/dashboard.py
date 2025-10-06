@@ -8,12 +8,16 @@ df = pd.DataFrame(data.json())
 
 
 def layout():
-    st.markdown("# ")
+    st.markdown("# TAXIFY")
+    
+    
+    
         
     with st.form("data"):
         origin = st.text_input("Pick up adress")
         destination = st.text_input("Destination adress")
-        Passenger_Count = st.slider("Number of passangers", 1, 8, 2)
+        passenger_count = st.slider("Number of passangers", 1, 8, 2)
+        
         submitted = st.form_submit_button("Get price prediction") # add func so it doens crash if not input
     
     if submitted:
@@ -28,7 +32,7 @@ def layout():
                     "Trip_Duration_Minutes": duration_min,
                     "Time_of_Day_Afternoon": 12 <= now.hour < 18,
                     "Time_of_Day_Evening": 18 <= now.hour < 24,
-                    "Passenger_Count": 2,
+                    "Passenger_Count": passenger_count,
                     "Day_of_Week_Weekday": now.weekday() < 5,
                     "Base_Fare": 3.5,
                     "Per_Km_Rate": 1.2,
@@ -49,6 +53,8 @@ def layout():
         else:
             st.warning("Enter pickup and destination")
 
+        with st.expander("show payload"):
+            st.json(payload)
     
     # st.sidebar.title("""
     #                  :red[Settings]
@@ -62,6 +68,14 @@ def layout():
 
 if __name__ == '__main__':
     layout()
+
+# start_time = st.slider(
+#         "Boking",
+#             value=datetime("YYYY", "DD", "MM", "hh", "mm"),
+#             format="MM/DD/YY - hh:mm",
+#         )
+#         st.write("Start time:", start_time)
+
 
 #                       count	mean	    std	        min	    25%	    50%	        75%	    max
 # Trip_Distance_km	    1000.0	26.153327	15.521566	1.23	13.1075	26.995000	37.7825	74.795
