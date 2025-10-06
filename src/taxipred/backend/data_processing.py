@@ -11,7 +11,7 @@ load_dotenv()
 
 # 
 class TaxiInput(BaseModel):
-    Trip_Distance_km: float = Field(ge=1, le=10000)
+    Trip_Distance_km: float = Field(ge=0, le=10000)
     #Passenger_Count: float = Field(ge=0, le=9)
     Base_Fare: float = Field(ge=0, le=10)
     Per_Km_Rate: float = Field(ge=0, le=10)
