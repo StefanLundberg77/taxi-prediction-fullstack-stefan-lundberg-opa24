@@ -1,4 +1,4 @@
-from taxipred.utils.helpers import read_api_endpoint, post_api_endpoint, get_distance_duration
+from taxipred.utils.helpers import read_api_endpoint, post_api_endpoint, get_distance_duration, get_coordinates
 from datetime import datetime
 import streamlit as st
 import pandas as pd
@@ -24,8 +24,10 @@ def layout():
         if origin and destination:
             distance_km, duration_min = get_distance_duration(origin, destination)
             if distance_km is not None and duration_min is not None:
-                st.success(f"Distance: {distance_km:.2f} km")
-                st.info(f"Travel time: {duration_min:.1f} minutes")
+                
+                # get coordinates
+                origin_lat, origin_lon = get_coordinates(origin)
+                destination_lat, destination_lon = get_coordinates(destination)
                 now = datetime.now()
                 payload = {
                     "Trip_Distance_km": distance_km,
@@ -46,6 +48,8 @@ def layout():
                 if response.status_code == 200:
                     predicted_price = response.json().get("predicted_trip_price")
                     st.success(f"Price: {predicted_price} SEK")
+                    st.info(f"Distance: {distance_km:.2f} km")
+                    st.info(f"Travel time: {duration_min:.1f} minutes")
                 else:
                     st.error("Unable to get predicted price")
             else:
@@ -53,14 +57,15 @@ def layout():
         else:
             st.warning("Enter pickup and destination")
 
+        
         with st.expander("show payload"):
             st.json(payload)
+        with st.expander("Show coordinates"):
+            st.info(f"Pick up coordinates = latitude: {origin_lat} longitude: {origin_lon}")
+            st.info(f"Destination coordinates = latitude: {destination_lat} longitude: {destination_lon}")
     
-    # st.sidebar.title("""
-    #                  :red[Settings]
-    #                  """)
-    # Passenger_Count = st.sidebar.slider("Number of passangers", 1, 6, 2)
-    
+        
+    st.sidebar.title("Dev options")
     
     # st.markdown("## Raw data") # for testing
     # st.dataframe(df)

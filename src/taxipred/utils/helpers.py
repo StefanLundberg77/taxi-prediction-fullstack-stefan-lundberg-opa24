@@ -64,8 +64,21 @@ def get_distance_duration(origin, destination):
         print("Error:", e)
         return None, None
 
-        
-
+def get_coordinates(address):
+    api_key = os.getenv("GOOGLE_MAPS_KEY")
+    url = "https://maps.googleapis.com/maps/api/geocode/json"
+    params = {
+        "address": address,
+        "key": api_key
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+    try:
+        location = data["results"][0]["geometry"]["location"]
+        return location["lat"], location["lng"]
+    except Exception as e:
+        print("geocode error:", e)
+        return None, None
 
 # TODO: 
 #- finish distance_duration
