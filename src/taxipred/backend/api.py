@@ -7,7 +7,7 @@ taxi_data = TaxiData()
 # root page message
 @app.get("/")
 def root():
-    return {"Taxi prediction API is runnin /docs for swagger UIcd .."}
+    return {"Taxi prediction API is runnin add endpoint/docs to url for swagger UI"}
 
 # endpoint return data in json format and limited to 100 rows
 @app.get("/api/")

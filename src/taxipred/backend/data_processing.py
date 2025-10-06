@@ -9,7 +9,7 @@ from taxipred.utils.helpers import get_currency_rate
 # load .env file with api key etc.
 load_dotenv() 
 
-
+# 
 class TaxiInput(BaseModel):
     Trip_Distance_km: float = Field(ge=1, le=10000)
     Passenger_Count: float = Field(ge=0, le=9)
@@ -26,7 +26,7 @@ class TaxiInput(BaseModel):
 class PredictionOutput(BaseModel):
     predicted_trip_price: float = Field(ge=0.1, description="Predicted price in SEK.")
 
-    
+#     
 class TaxiData:
     def __init__(self):
         self.df = get_clean_data()
@@ -36,11 +36,6 @@ class TaxiData:
     def to_json(self):
         return json.loads(self.df.to_json(orient = "records"))
         
-    # https://maps.googleapis.com/maps/api/distancematrix/json
-    # ?destinations=New%20York%20City%2C%20NY
-    # &origins=Washington%2C%20DC
-    # &units=imperial
-    # &key=YOUR_API_KEY
     
     # trip price prediction method
     def predict(self, input_data: TaxiInput) -> PredictionOutput:
@@ -59,10 +54,7 @@ class TaxiData:
 
         return PredictionOutput(predicted_trip_price=sek_price)
 
-# TODO: 
-#- finish distance_duration
-#- weather api?
-#- traffic condition api?  
+  
 
 if __name__ == "__main__":
     taxi_data = TaxiData()

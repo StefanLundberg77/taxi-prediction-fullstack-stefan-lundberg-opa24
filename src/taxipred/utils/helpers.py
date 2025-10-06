@@ -83,3 +83,10 @@ def get_currency_rate(default_rate=10.0):
     except Exception as e:
         print(f"Misslyckades hämta valutakurs: {e}. Använder fallback.")
         return default_rate
+
+
+# TODO: 
+#- finish distance_duration
+#- weather api?
+#- traffic condition api?
+#- map

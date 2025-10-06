@@ -5,14 +5,12 @@ Project structure for directory: C:\Users\metal\Skola\course\taxi-prediction-ful
 │   ├── 📄 data_cleaning.ipynb
 │   ├── 📄 eda.ipynb
 │   ├── 📄 model.ipynb
-│   ├── 📂 models
-│   │   └── 📄 xgb_model.joblib
 │   ├── 📄 model_functions.py
 │   └── 📂 __pycache__
 │       ├── 📄 Cleaning_functions.cpython-313.pyc
 │       ├── 📄 functions.cpython-313.pyc
 │       └── 📄 model_functions.cpython-313.pyc
-├── 📄 file_tree.txt
+├── 📄 file_name.txt
 ├── 📄 README.md
 ├── 📄 requirements.txt
 ├── 📄 scratchbook.txt
@@ -22,20 +20,26 @@ Project structure for directory: C:\Users\metal\Skola\course\taxi-prediction-ful
     │   ├── 📂 backend
     │   │   ├── 📄 api.py
     │   │   ├── 📄 data_processing.py
-    │   │   └── 📄 __init__.py
+    │   │   ├── 📄 __init__.py
+    │   │   └── 📂 __pycache__
+    │   │       ├── 📄 api.cpython-313.pyc
+    │   │       ├── 📄 data_processing.cpython-313.pyc
+    │   │       └── 📄 __init__.cpython-313.pyc
     │   ├── 📂 data
     │   │   ├── 📄 cleaned_data.csv
     │   │   └── 📄 taxi_trip_pricing.csv
     │   ├── 📂 frontend
     │   │   ├── 📄 dashboard.py
-    │   │   ├── 📄 frontend.py
     │   │   └── 📄 __init__.py
+    │   ├── 📂 models
+    │   │   └── 📄 xgb_model.joblib
     │   ├── 📂 utils
     │   │   ├── 📄 constants.py
     │   │   ├── 📄 helpers.py
     │   │   ├── 📄 __init__.py
     │   │   └── 📂 __pycache__
     │   │       ├── 📄 constants.cpython-313.pyc
+    │   │       ├── 📄 helpers.cpython-313.pyc
     │   │       └── 📄 __init__.cpython-313.pyc
     │   ├── 📄 __init__.py
     │   └── 📂 __pycache__
@@ -48,14 +52,14 @@ Project structure for directory: C:\Users\metal\Skola\course\taxi-prediction-ful
         └── 📄 top_level.txt
 
 
-Total directories 📂: 12
-Total files 📄: 34
+Total directories 📂: 13
+Total files 📄: 37
 File extensions count:
-.py : 13
+.py : 12
 .ipynb : 3
-.joblib : 1
-.pyc : 6
+.pyc : 10
 .txt : 7
 .md : 1
 .csv : 2
+.joblib : 1
 no_ext : 1
