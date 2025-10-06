@@ -8,26 +8,12 @@ df = pd.DataFrame(data.json())
 
 
 def layout():
-    # st.markdown("""
-    # <style>
-    # body {
-    #     background-color: #1e1e1e;
-    #     color: white;
-    # }
-    # </style>
-    # """,
-    #     unsafe_allow_html=True
-    # )
-    
-    
-
-    # st.markdown("""
-    #             :red[Streamlit] :orange[can] :green[write] :blue[text] :violet[in]
-    #             """
-    # )    
+    st.markdown("# ")
+        
     with st.form("data"):
         origin = st.text_input("Pick up adress")
         destination = st.text_input("Destination adress")
+        Passenger_Count = st.slider("Number of passangers", 1, 8, 2)
         submitted = st.form_submit_button("Get price prediction") # add func so it doens crash if not input
     
     if submitted:
@@ -38,28 +24,31 @@ def layout():
                 st.info(f"Travel time: {duration_min:.1f} minutes")
                 now = datetime.now()
                 payload = {
-                        "Trip_Distance_km": distance_km,
-                        "Trip_Duration_Minutes": duration_min,
-                        "Time_of_Day_Afternoon": 12 <= now.hour < 18,
-                        "Day_of_Week_Weekday": now.weekday() < 5,
-                        "Base_Fare": 3.5,
-                        "Per_Km_Rate": 1.2,
-                        "Per_Minute_Rate": 0.3,
-                        "Passenger_Count": 2,
-                        "Traffic_Conditions_High": False,
-                        "Weather_Rain": False,
-                        "Weather_Snow": False
-                    }
-        #response = post_api_endpoint(payload, endpoint="/api/predict")
-        #predicted_ = response.json().get("predicted_")
-        response = post_api_endpoint(payload, endpoint="/api/predict")
-        if response.status_code == 200:
-            predicted_price = response.json().get("predicted_trip_price")
-            st.success(f"Price: {predicted_price} SEK")
+                    "Trip_Distance_km": distance_km,
+                    "Trip_Duration_Minutes": duration_min,
+                    "Time_of_Day_Afternoon": 12 <= now.hour < 18,
+                    "Time_of_Day_Evening": 18 <= now.hour < 24,
+                    "Passenger_Count": 2,
+                    "Day_of_Week_Weekday": now.weekday() < 5,
+                    "Base_Fare": 3.5,
+                    "Per_Km_Rate": 1.2,
+                    "Per_Minute_Rate": 0.3,
+                    "Traffic_Conditions_High": False,
+                    "Weather_Rain": False,
+                    "Weather_Snow": False
+                }
+
+                response = post_api_endpoint(payload, endpoint="/api/predict")
+                if response.status_code == 200:
+                    predicted_price = response.json().get("predicted_trip_price")
+                    st.success(f"Price: {predicted_price} SEK")
+                else:
+                    st.error("Unable to get predicted price")
+            else:
+                st.error("Could not fetch distance or duration")
         else:
-            st.error("Unable to get predicted price")
-    else:
-        st.warning("Enter pickup/destination")
+            st.warning("Enter pickup and destination")
+
     
     # st.sidebar.title("""
     #                  :red[Settings]
