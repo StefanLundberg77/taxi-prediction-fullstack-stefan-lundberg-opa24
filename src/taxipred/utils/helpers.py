@@ -64,10 +64,7 @@ def get_distance_duration(origin, destination):
         print("Error:", e)
         return None, None
 
-
-def 
-
-
+        
 
 
 # TODO: 
