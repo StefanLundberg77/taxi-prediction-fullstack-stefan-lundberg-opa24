@@ -23,19 +23,19 @@ async def predict_price(payload: TaxiInput):
     return taxi_data.predict(payload)
 
 
-# testing predict on the missing price label rows
-@app.get("/api/predict/missing_labels", response_model=list)
-async def test_predict_missing_labels():
-    df = get_missing_label()
-    results = []
+# # testing predict on the missing price label rows
+# @app.get("/api/predict/missing_labels", response_model=list)
+# async def test_predict_missing_labels():
+#     df = get_missing_label()
+#     results = []
     
-    # looping through df adding the predicted price to the dicts
-    for row in df.to_dict(orient="records"):
-        prediction = taxi_data.predict(TaxiInput(**row))
-        row["Predicted_Trip_Price"] = prediction.predicted_trip_price
-        results.append(row)
+#     # looping through df adding the predicted price to the dicts
+#     for row in df.to_dict(orient="records"):
+#         prediction = taxi_data.predict(TaxiInput(**row))
+#         row["Predicted_Trip_Price"] = prediction.predicted_trip_price
+#         results.append(row)
         
-    return results  
+#     return results  
 
 
 

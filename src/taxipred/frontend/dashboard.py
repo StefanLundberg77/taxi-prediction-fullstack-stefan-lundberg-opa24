@@ -8,23 +8,23 @@ df = pd.DataFrame(data.json())
 
 
 def layout():
-    st.markdown("""
-    <style>
-    body {
-        background-color: #1e1e1e;
-        color: white;
-    }
-    </style>
-    """,
-        unsafe_allow_html=True
-    )
+    # st.markdown("""
+    # <style>
+    # body {
+    #     background-color: #1e1e1e;
+    #     color: white;
+    # }
+    # </style>
+    # """,
+    #     unsafe_allow_html=True
+    # )
     
     
 
-    st.markdown("""
-                :red[Streamlit] :orange[can] :green[write] :blue[text] :violet[in]
-                """
-    )    
+    # st.markdown("""
+    #             :red[Streamlit] :orange[can] :green[write] :blue[text] :violet[in]
+    #             """
+    # )    
     with st.form("data"):
         origin = st.text_input("Pick up adress")
         destination = st.text_input("Destination adress")

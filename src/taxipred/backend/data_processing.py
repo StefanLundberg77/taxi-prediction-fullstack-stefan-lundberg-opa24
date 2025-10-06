@@ -1,4 +1,4 @@
-from taxipred.utils.constants import get_clean_data, get_taxi_model, get_missing_label
+from taxipred.utils.constants import get_clean_data, get_taxi_model
 from pydantic import BaseModel, Field
 import pandas as pd
 import json
@@ -12,12 +12,13 @@ load_dotenv()
 # 
 class TaxiInput(BaseModel):
     Trip_Distance_km: float = Field(ge=0, le=10000)
-    #Passenger_Count: float = Field(ge=0, le=9)
+    Passenger_Count: float = Field(ge=0, le=9)
     Base_Fare: float = Field(ge=0, le=10)
     Per_Km_Rate: float = Field(ge=0, le=10)
     Per_Minute_Rate: float = Field(ge=0, le=10)
     Trip_Duration_Minutes: float = Field(ge=0, le=10000)
     Time_of_Day_Afternoon: bool
+    Time_of_Day_Evening: bool
     Day_of_Week_Weekday: bool
     Traffic_Conditions_High: bool
     Weather_Rain: bool
@@ -31,7 +32,7 @@ class TaxiData:
     def __init__(self):
         self.df = get_clean_data()
         self.model = get_taxi_model()
-        self.conversion_rate = get_currency_rate(self)
+        self.conversion_rate = get_currency_rate()
 
     def to_json(self):
         return json.loads(self.df.to_json(orient = "records"))

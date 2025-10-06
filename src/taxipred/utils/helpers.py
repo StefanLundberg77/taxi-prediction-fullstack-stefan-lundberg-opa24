@@ -20,7 +20,7 @@ def post_api_endpoint(payload, endpoint = "/", base_url = "http://127.0.0.1:8000
     return response
 
 # method: fetch current currency rate from api
-def get_currency_rate(self, default_rate: float = 10.0) -> float:
+def get_currency_rate(default_rate: float = 10.0) -> float:
     api_key = os.getenv("FASTFOREX_API_KEY")
 
     # incase api key missing use set rate
