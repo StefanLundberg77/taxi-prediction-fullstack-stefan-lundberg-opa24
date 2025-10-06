@@ -4,6 +4,10 @@ from pprint import pprint
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+import folium
+from streamlit_folium import st_folium
+from geopy.geocoders import Nominatim
+import streamlit as st
 
 load_dotenv() 
 
@@ -79,6 +83,16 @@ def get_coordinates(address):
     except Exception as e:
         print("geocode error:", e)
         return None, None
+
+def display_map(address):
+    geolocator = Nominatim(user_agent="TAXIFY")
+    location = geolocator.geocode(address)
+    
+    m= folium.Map(location=[location.latitude, location.longitude], zoom_start=10)
+    folium.Marker([location.latitude, location.longitude], tooltip="Plats").add_to(m)
+    
+    st.subheader("Map")
+    st_folium(m)
 
 # TODO: 
 #- finish distance_duration

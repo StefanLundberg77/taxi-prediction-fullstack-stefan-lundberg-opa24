@@ -1,4 +1,4 @@
-from taxipred.utils.helpers import read_api_endpoint, post_api_endpoint, get_distance_duration, get_coordinates
+from taxipred.utils.helpers import read_api_endpoint, post_api_endpoint, get_distance_duration, get_coordinates, display_map
 from datetime import datetime
 import streamlit as st
 import pandas as pd
@@ -9,7 +9,6 @@ df = pd.DataFrame(data.json())
 
 def layout():
     st.markdown("# TAXIFY")
-    
     
     
         
@@ -25,10 +24,14 @@ def layout():
             distance_km, duration_min = get_distance_duration(origin, destination)
             if distance_km is not None and duration_min is not None:
                 
-                # get coordinates
+                # get coordinates from geocode api
                 origin_lat, origin_lon = get_coordinates(origin)
                 destination_lat, destination_lon = get_coordinates(destination)
+                
+                # setting current time now
                 now = datetime.now()
+                
+                # input params for prediction
                 payload = {
                     "Trip_Distance_km": distance_km,
                     "Trip_Duration_Minutes": duration_min,
@@ -43,17 +46,17 @@ def layout():
                     "Weather_Rain": False,
                     "Weather_Snow": False
                 }
-
                 response = post_api_endpoint(payload, endpoint="/api/predict")
                 if response.status_code == 200:
                     predicted_price = response.json().get("predicted_trip_price")
+
                     st.success(f"Price: {predicted_price} SEK")
                     st.info(f"Distance: {distance_km:.2f} km")
                     st.info(f"Travel time: {duration_min:.1f} minutes")
                 else:
                     st.error("Unable to get predicted price")
             else:
-                st.error("Could not fetch distance or duration")
+                st.error("Unable to get distance or duration")
         else:
             st.warning("Enter pickup and destination")
 
@@ -64,11 +67,15 @@ def layout():
             st.info(f"Pick up coordinates = latitude: {origin_lat} longitude: {origin_lon}")
             st.info(f"Destination coordinates = latitude: {destination_lat} longitude: {destination_lon}")
     
+    address = origin
+    display_map(address)    
+    with st.sidebar.expander("Dev options"):
+            st.markdown("#### Raw data") # for testing
+            st.dataframe(df)
+            
+
         
-    st.sidebar.title("Dev options")
-    
-    # st.markdown("## Raw data") # for testing
-    # st.dataframe(df)
+
 
 
 if __name__ == '__main__':
