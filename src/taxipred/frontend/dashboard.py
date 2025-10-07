@@ -9,29 +9,34 @@ df = pd.DataFrame(data.json())
 
 def layout():
     st.markdown("# TAXIFY")
-    
-    
-        
+
+    # Initialize variables to avoid UnboundLocalError
+    payload = None
+    origin_lat = origin_lon = destination_lat = destination_lon = None
+
     with st.form("data"):
         origin = st.text_input("Pick up adress")
         destination = st.text_input("Destination adress")
         passenger_count = st.slider("Number of passangers", 1, 8, 2)
-        
-        submitted = st.form_submit_button("Get price prediction") # add func so it doens crash if not input
-    
+        submitted = st.form_submit_button("Get price prediction")
+
+        # Show map inside form
+        display_map(origin)
+
+
     if submitted:
         if origin and destination:
             distance_km, duration_min = get_distance_duration(origin, destination)
             if distance_km is not None and duration_min is not None:
-                
-                # get coordinates from geocode api
+
+                # Get coordinates from geocode API
                 origin_lat, origin_lon = get_coordinates(origin)
                 destination_lat, destination_lon = get_coordinates(destination)
-                
-                # setting current time now
+
+                # Set current time
                 now = datetime.now()
-                
-                # input params for prediction
+
+                # Prepare input payload for prediction
                 payload = {
                     "Trip_Distance_km": distance_km,
                     "Trip_Duration_Minutes": duration_min,
@@ -46,6 +51,7 @@ def layout():
                     "Weather_Rain": False,
                     "Weather_Snow": False
                 }
+
                 response = post_api_endpoint(payload, endpoint="/api/predict")
                 if response.status_code == 200:
                     predicted_price = response.json().get("predicted_trip_price")
@@ -60,23 +66,31 @@ def layout():
         else:
             st.warning("Enter pickup and destination")
 
-        
-        with st.expander("show payload"):
+    # Show payload if available
+    with st.expander("Show payload"):
+        if payload:
             st.json(payload)
-        with st.expander("Show coordinates"):
+        else:
+            st.info("Unable to show payload.")
+
+    # Show coordinates if available
+    with st.expander("Show coordinates"):
+        if origin_lat and origin_lon and destination_lat and destination_lon:
             st.info(f"Pick up coordinates = latitude: {origin_lat} longitude: {origin_lon}")
             st.info(f"Destination coordinates = latitude: {destination_lat} longitude: {destination_lon}")
+        else:
+            st.info("Unable to show coordinates.")
     
-    address = origin
-    display_map(address)    
     with st.sidebar.expander("Dev options"):
             st.markdown("#### Raw data") # for testing
             st.dataframe(df)
-            
-
         
+        
+#   cd src/taxipred/backend/
+#   uvicorn  api:app --reload
 
-
+#   cd src/taxipred/frontend/
+#   streamlit run dashboard.py
 
 if __name__ == '__main__':
     layout()

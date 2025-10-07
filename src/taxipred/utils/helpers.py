@@ -75,6 +75,8 @@ def get_coordinates(address):
         "address": address,
         "key": api_key
     }
+        
+    
     response = requests.get(url, params=params)
     data = response.json()
     try:
@@ -86,16 +88,34 @@ def get_coordinates(address):
 
 def display_map(address):
     geolocator = Nominatim(user_agent="TAXIFY")
+    default_address = "Uppsala, Sweden"
+    
+    if not address:
+        address = default_address
+        location = address
+        m= folium.Map(location=[location.latitude, location.longitude], zoom_start=10)
+        folium.Marker([location.latitude, location.longitude], tooltip=location).add_to(m)
+        st_folium(m, width=800, height=200)
+        
     location = geolocator.geocode(address)
     
-    m= folium.Map(location=[location.latitude, location.longitude], zoom_start=10)
-    folium.Marker([location.latitude, location.longitude], tooltip="Plats").add_to(m)
-    
-    st.subheader("Map")
-    st_folium(m)
-
+    if location:
+        m= folium.Map(location=[location.latitude, location.longitude], zoom_start=10)
+        folium.Marker([location.latitude, location.longitude], tooltip=location).add_to(m)
+        st_folium(m, width=800, height=200)
+    else:
+        # if geocode fail, display deafault
+        fallback_location = geolocator.geocode(default_address)
+        if fallback_location:
+            m= folium.Map(location=[fallback_location.latitude, fallback_location.longitude], zoom_start=10)
+            folium.Marker([fallback_location.latitude, fallback_location.longitude], tooltip=location).add_to(m)
+            st_folium(m, width=800, height=200)
+            
+        else:
+            st.error("No address")
 # TODO: 
 #- finish distance_duration
 #- weather api?
 #- traffic condition api?
 #- map
+#- error, exception handling
