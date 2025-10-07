@@ -9,79 +9,85 @@ df = pd.DataFrame(data.json())
 image_path = ASSETS_PATH
 
 def layout():
-    st.markdown("# TAXIFY")
-    
-    # Initialize variables to avoid UnboundLocalError
-    payload = None
-    origin_lat = origin_lon = destination_lat = destination_lon = None
+    # splitting layout in 2 columns
+    with st.container(border=True):
+        col1, col2 = st.columns([1, 2])  
+        with col1:
 
-    with st.form("data"):
-        st.image(image_path / "rymdtaxi2.png", use_container_width=True)
-        origin = st.text_input("Pick up adress")
-        destination = st.text_input("Destination adress")
-        passenger_count = st.slider("Number of passangers", 1, 8, 2)
-        submitted = st.form_submit_button("Get price prediction")
+            # Initialize variables to avoid UnboundLocalError
+            payload = None
+            origin_lat = origin_lon = destination_lat = destination_lon = None
 
-        # Show map inside form
-        display_map(origin)
+            with st.form("data"):
+                st.image(image_path / "taxify.png", width="stretch")
+                origin = st.text_input("Pick up adress")
+                destination = st.text_input("Destination adress")
+                passenger_count = st.number_input("Number of passangers", 1, 8, 2)
+                submitted = st.form_submit_button("Get price prediction")
+
+                # Show map inside form
+                #display_map(origin)
 
 
-    if submitted:
-        if origin and destination:
-            distance_km, duration_min = get_distance_duration(origin, destination)
-            if distance_km is not None and duration_min is not None:
+            if submitted:
+                if origin and destination:
+                    distance_km, duration_min = get_distance_duration(origin, destination)
+                    if distance_km is not None and duration_min is not None:
 
-                # Get coordinates from geocode API
-                origin_lat, origin_lon = get_coordinates(origin)
-                destination_lat, destination_lon = get_coordinates(destination)
+                        # Get coordinates from geocode API
+                        origin_lat, origin_lon = get_coordinates(origin)
+                        destination_lat, destination_lon = get_coordinates(destination)
 
-                # Set current time
-                now = datetime.now()
+                        # Set current time
+                        now = datetime.now()
 
-                # Prepare input payload for prediction
-                payload = {
-                    "Trip_Distance_km": distance_km,
-                    "Trip_Duration_Minutes": duration_min,
-                    "Time_of_Day_Afternoon": 12 <= now.hour < 18,
-                    "Time_of_Day_Evening": 18 <= now.hour < 24,
-                    "Passenger_Count": passenger_count,
-                    "Day_of_Week_Weekday": now.weekday() < 5,
-                    "Base_Fare": 3.5,
-                    "Per_Km_Rate": 1.2,
-                    "Per_Minute_Rate": 0.3,
-                    "Traffic_Conditions_High": False,
-                    "Weather_Rain": False,
-                    "Weather_Snow": False
-                }
+                        # Prepare input payload for prediction
+                        payload = {
+                            "Trip_Distance_km": distance_km,
+                            "Trip_Duration_Minutes": duration_min,
+                            "Time_of_Day_Afternoon": 12 <= now.hour < 18,
+                            "Time_of_Day_Evening": 18 <= now.hour < 24,
+                            "Passenger_Count": passenger_count,
+                            "Day_of_Week_Weekday": now.weekday() < 5,
+                            "Base_Fare": 3.5,
+                            "Per_Km_Rate": 1.2,
+                            "Per_Minute_Rate": 0.3,
+                            "Traffic_Conditions_High": False,
+                            "Weather_Rain": False,
+                            "Weather_Snow": False
+                        }
 
-                response = post_api_endpoint(payload, endpoint="/api/predict")
-                if response.status_code == 200:
-                    predicted_price = response.json().get("predicted_trip_price")
-
-                    st.success(f"Price: {predicted_price} SEK")
-                    st.info(f"Distance: {distance_km:.2f} km")
-                    st.info(f"Travel time: {duration_min:.1f} minutes")
+                        response = post_api_endpoint(payload, endpoint="/api/predict")
+                        if response.status_code == 200:
+                            predicted_price = response.json().get("predicted_trip_price")
+                            st.success(f"Price: {predicted_price} SEK")
+                            st.info(f"Distance: {distance_km:.2f} km")
+                            st.info(f"Travel time: {duration_min:.1f} minutes")
+                        else:
+                            st.error("Unable to get predicted price")
+                    else:
+                        st.error("Unable to get distance or duration")
                 else:
-                    st.error("Unable to get predicted price")
-            else:
-                st.error("Unable to get distance or duration")
-        else:
-            st.warning("Enter pickup and destination")
+                    st.warning("Enter pickup and destination")
+                
+                
+        with col2:
+            display_map(origin)
+            
+            # Show payload if available
+            with st.expander("Show payload"):
+                if payload:
+                    st.json(payload)
+                else:
+                    st.info("Unable to show payload. Enter pickup and destination")
 
-    # Show payload if available
-    with st.expander("Show payload"):
-        if payload:
-            st.json(payload)
-        else:
-            st.info("Unable to show payload. Enter pickup and destination")
-
-    # Show coordinates if available
-    with st.expander("Show coordinates"):
-        if origin_lat and origin_lon and destination_lat and destination_lon:
-            st.info(f"Pick up coordinates = latitude: {origin_lat} longitude: {origin_lon}")
-            st.info(f"Destination coordinates = latitude: {destination_lat} longitude: {destination_lon}")
-        else:
-            st.info("Unable to show coordinates. Enter pickup and destination")
+            # Show coordinates if available
+            with st.expander("Show coordinates"):
+                if origin_lat and origin_lon and destination_lat and destination_lon:
+                    st.info(f"Pick up coordinates = latitude: {origin_lat} longitude: {origin_lon}")
+                    st.info(f"Destination coordinates = latitude: {destination_lat} longitude: {destination_lon}")
+                else:
+                    st.info("Unable to show coordinates. Enter pickup and destination")
     
     with st.sidebar.expander("Dev options"):
             st.markdown("#### Raw data") # for testing

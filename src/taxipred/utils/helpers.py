@@ -100,7 +100,7 @@ def display_map(address):
         lat, lon = location.latitude, location.longitude
         m = folium.Map(location=[lat, lon], zoom_start=10)
         folium.Marker([lat, lon], tooltip=f"{input_address}").add_to(m)
-        st_folium(m, width=800, height=200)
+        st_folium(m,width="stretch", height=530)
     else:
         st.error(f"Could not geocode address: {input_address}")
     
