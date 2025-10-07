@@ -1,13 +1,18 @@
-from taxipred.utils.helpers import read_api_endpoint, post_api_endpoint, get_distance_duration, get_coordinates, display_map
+from taxipred.utils.helpers import (
+    read_api_endpoint, post_api_endpoint,
+    get_trip_metrics, get_coordinates,
+    get_map_directions
+)
 from taxipred.utils.constants import ASSETS_PATH
-from datetime import datetime
+from datetime import datetime, date, time
+#from datetime import datetime, date, time as time_obj
 import streamlit as st
 import pandas as pd
+import os
 
 data = read_api_endpoint("/api")
 df = pd.DataFrame(data.json())
 image_path = ASSETS_PATH
-
 def layout():
     
     # adds container with border
@@ -16,23 +21,38 @@ def layout():
         # splitting layout in 2 columns
         col1, col2 = st.columns([1, 2])  
         with col1:
-
             # Initialize variables to avoid UnboundLocalError
             payload = None
             origin_lat = origin_lon = destination_lat = destination_lon = None
-
+            predicted_price = None
+            traffic_high = False
+            
             # add form with image, input boxes, and submit button
             with st.form("data"):
-                st.image(image_path / "taxify.png", width="stretch")              
+                st.image(image_path / "taxify.png", width="stretch")  
+                # origin = st.text_input("Pick up address", "Tegelbruksgatan, Alingsås") måste man ha satta?
+                # destination = st.text_input("Destination address", "Centralstationen, Göteborg")
+                            
                 origin = st.text_input("Pick up adress")
                 destination = st.text_input("Destination adress")
+                chosen_time = st.time_input("Time of departure", value=time(12, 00)) # or now?
                 passenger_count = st.number_input("Number of passangers", 1, 8, 2)
                 submitted = st.form_submit_button("Get price prediction")
+                
+                today = date.today()
+                departure_datetime = datetime.combine(today, chosen_time)
+                departure_timestamp = int(departure_datetime.timestamp())
             
             # if form succesfully submitted
             if submitted:
                 if origin and destination:
-                    distance_km, duration_min = get_distance_duration(origin, destination)
+                    metrics = get_trip_metrics(origin, destination, departure_timestamp)
+                    if metrics and "distance_km" in metrics:
+                        distance_km = metrics["distance_km"]
+                        duration_min = metrics["duration_min"]
+                        traffic_high = metrics["traffic_high"]
+
+                    
                     if distance_km is not None and duration_min is not None:
 
                         # Get coordinates from geocode API
@@ -41,7 +61,7 @@ def layout():
 
                         # Set current time
                         now = datetime.now()
-
+                        
                         # Prepare input payload for prediction
                         payload = {
                             "Trip_Distance_km": distance_km,
@@ -50,10 +70,10 @@ def layout():
                             "Time_of_Day_Evening": 18 <= now.hour < 24,
                             "Passenger_Count": passenger_count,
                             "Day_of_Week_Weekday": now.weekday() < 5,
-                            "Base_Fare": 3.5,
-                            "Per_Km_Rate": 1.2,
-                            "Per_Minute_Rate": 0.3,
-                            "Traffic_Conditions_High": False,
+                            "Base_Fare": 3.5, # mean value
+                            "Per_Km_Rate": 1.2, # mean
+                            "Per_Minute_Rate": 0.3, # mean
+                            "Traffic_Conditions_High": traffic_high,
                             "Weather_Rain": False,
                             "Weather_Snow": False
                         }
@@ -64,17 +84,22 @@ def layout():
                             st.success(f"Price: {predicted_price} SEK")
                             st.info(f"Distance: {distance_km:.2f} km")
                             st.info(f"Travel time: {duration_min:.1f} minutes")
+                            st.info(f"Traffic: {'High' if traffic_high else 'Normal'}")
                         else:
                             st.error("Unable to get predicted price")
                     else:
                         st.error("Unable to get distance or duration")
-                else:
-                    st.warning("Enter pickup and destination")
+                elif submitted:
+                    st.warning("Enter both pickup and destination")
                 
                 
         with col2:
-            display_map(origin, destination)
-            
+            #display_map(origin, destination)
+            if submitted and origin and destination:
+                get_map_directions(origin, destination)
+            else:
+                get_map_directions(origin, origin)
+                
             # Show payload if available
             with st.expander("Show payload"):
                 if payload:

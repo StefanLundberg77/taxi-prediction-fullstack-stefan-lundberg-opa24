@@ -8,6 +8,8 @@ import folium
 from streamlit_folium import st_folium
 from geopy.geocoders import Nominatim
 import streamlit as st
+import time
+import urllib.parse
 
 load_dotenv() 
 
@@ -47,26 +49,46 @@ def get_currency_rate(default_rate: float = 10.0) -> float:
 
     
 # input 2 adresses and get distance and estimated trip duration from google maps
-def get_distance_duration(origin, destination):
+def get_trip_metrics(origin, destination, departure_timestamp):
     api_key = os.getenv("GOOGLE_MAPS_KEY")
     url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+    #departure_time = int(time.time())
     parameters = {
         "origins": origin,
         "destinations": destination,
         "units": "metric",
+        "departure_time": departure_timestamp,
         "key": api_key            
     }
-    response = requests.get(url, parameters)
-    data = response.json()
-    
     try:
+        response = requests.get(url, params=parameters)
+        data = response.json()
         element = data["rows"][0]["elements"][0]
-        distance_km = element["distance"]["value"] / 1000  # meters to km
-        duration_min = element["duration"]["value"] / 60   # seconds to minutes
-        return distance_km, duration_min
+
+        distance_km = element["distance"]["value"] / 1000
+        duration_min = element["duration"]["value"] / 60
+        duration_traffic_min = element.get("duration_in_traffic", {}).get("value", element["duration"]["value"]) / 60
+
+        traffic_ratio = duration_traffic_min / duration_min
+        traffic_high = traffic_ratio > 1.25  # adjustable
+
+        return distance_km, duration_min, traffic_high
+    
     except Exception as e:
-        print("Error:", e)
-        return None, None
+        print("Trip metrics error:", e)
+        return {} # or None...
+    
+    # response = requests.get(url, parameters)
+    # data = response.json()
+    
+    # try:
+    #     element = data["rows"][0]["elements"][0]
+    #     distance_km = element["distance"]["value"] / 1000  # meters to km
+    #     duration_min = element["duration"]["value"] / 60   # seconds to minutes
+    #     return distance_km, duration_min
+    # except Exception as e:
+    #     print("Error:", e)
+    #     return None, None
 
 def get_coordinates(address):
     api_key = os.getenv("GOOGLE_MAPS_KEY")
@@ -86,6 +108,25 @@ def get_coordinates(address):
         print("geocode error:", e)
         return None, None
 
+def get_map_directions(origin: str, destination: str):
+    
+    api_key = os.getenv("GOOGLE_MAPS_KEY")
+    origin_q = urllib.parse.quote(origin)
+    dest_q = urllib.parse.quote(destination)
+
+    iframe = f"""
+    <iframe
+      width="100%"
+      height="500"
+      style="border:0"
+      loading="lazy"
+      allowfullscreen
+      src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={origin_q}&destination={dest_q}&mode=driving">
+    </iframe>
+    """
+    st.components.v1.html(iframe, height=530)
+    
+"""
 def display_map(origin_address=None, destination_address=None):
     geolocator = Nominatim(user_agent="TAXIFY", timeout=5)
     origin = origin_address or "malmö"
@@ -119,6 +160,7 @@ def display_map(origin_address=None, destination_address=None):
         st_folium(m,width="stretch", height=530)
     else:
         st.error("Could not geocode input addresses")
+"""
     
 # TODO: 
 #- finish distance_duration
