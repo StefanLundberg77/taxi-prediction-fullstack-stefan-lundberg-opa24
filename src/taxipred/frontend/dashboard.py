@@ -9,8 +9,11 @@ df = pd.DataFrame(data.json())
 image_path = ASSETS_PATH
 
 def layout():
-    # splitting layout in 2 columns
+    
+    # adds container with border
     with st.container(border=True):
+        
+        # splitting layout in 2 columns
         col1, col2 = st.columns([1, 2])  
         with col1:
 
@@ -18,17 +21,15 @@ def layout():
             payload = None
             origin_lat = origin_lon = destination_lat = destination_lon = None
 
+            # add form with image, input boxes, and submit button
             with st.form("data"):
-                st.image(image_path / "taxify.png", width="stretch")
+                st.image(image_path / "taxify.png", width="stretch")              
                 origin = st.text_input("Pick up adress")
                 destination = st.text_input("Destination adress")
                 passenger_count = st.number_input("Number of passangers", 1, 8, 2)
                 submitted = st.form_submit_button("Get price prediction")
-
-                # Show map inside form
-                #display_map(origin)
-
-
+            
+            # if form succesfully submitted
             if submitted:
                 if origin and destination:
                     distance_km, duration_min = get_distance_duration(origin, destination)
@@ -72,7 +73,7 @@ def layout():
                 
                 
         with col2:
-            display_map(origin)
+            display_map(origin, destination)
             
             # Show payload if available
             with st.expander("Show payload"):
@@ -120,3 +121,20 @@ if __name__ == '__main__':
 # TODO:
 #   - sätt uppstart requirements och förklara gällande api osv
 #def get_request(url = base_url, endpoint):
+
+
+# Feat– feature
+
+# Fix– bug fixes
+
+# Docs– changes to the documentation like README
+
+# Style– style or formatting change 
+
+# Perf – improves code performance
+
+# Test– test a feature
+
+# Summary:
+
+# Docs: Fixes typo on in-from-the-depths.md

@@ -86,23 +86,39 @@ def get_coordinates(address):
         print("geocode error:", e)
         return None, None
 
-def display_map(address):
-    geolocator = Nominatim(user_agent="TAXIFY")
-    default_address = "Uppsala, Sweden"
+def display_map(origin_address=None, destination_address=None):
+    geolocator = Nominatim(user_agent="TAXIFY", timeout=5)
+    origin = origin_address or "malmö"
+    destination = destination_address or "malmö"
     
+    #default_address = "Malmö, Sweden"
     # Use default if no address is provided
-    input_address = address if address else default_address
+    #input_address = address if address else default_address
         
-    location = geolocator.geocode(input_address)
+    origin_location = geolocator.geocode(origin)
+    destination_location = geolocator.geocode(destination)
     
     # making sure location is geocode and not None to avoid AttributeError 
-    if location is not None and hasattr(location, "latitude") and hasattr(location, "longitude"):
-        lat, lon = location.latitude, location.longitude
-        m = folium.Map(location=[lat, lon], zoom_start=10)
-        folium.Marker([lat, lon], tooltip=f"{input_address}").add_to(m)
+    if origin_location and destination_location:# is not None
+        #origin_coords = [hasattr(origin_location, "latitude"), hasattr(origin_location, "longitude")] 
+        #destination_coords = [hasattr(destination_location, "latitude"), hasattr(destination_location, "longitude")] 
+
+        origin_coords = [origin_location.latitude, origin_location.longitude]
+        destination_coords = [destination_location.latitude, destination_location.longitude]
+        
+        m= folium.Map(location=origin_coords, zoom_start=10)
+
+        # lat, lon = location.latitude, location.longitude
+        # add markers
+        folium.Marker(origin_coords, tooltip=f"Start: {origin}").add_to(m)
+        folium.Marker(destination_coords, tooltip=f"Destination: {destination}").add_to(m)
+        
+        # add line between markers
+        folium.PolyLine([origin_coords, destination_coords], color="blue", weight=3).add_to(m)
+        
         st_folium(m,width="stretch", height=530)
     else:
-        st.error(f"Could not geocode address: {input_address}")
+        st.error("Could not geocode input addresses")
     
 # TODO: 
 #- finish distance_duration
