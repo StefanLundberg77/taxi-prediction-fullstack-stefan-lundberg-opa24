@@ -71,7 +71,7 @@ def layout():
         if payload:
             st.json(payload)
         else:
-            st.info("Unable to show payload.")
+            st.info("Unable to show payload. Enter pickup and destination")
 
     # Show coordinates if available
     with st.expander("Show coordinates"):
@@ -79,7 +79,7 @@ def layout():
             st.info(f"Pick up coordinates = latitude: {origin_lat} longitude: {origin_lon}")
             st.info(f"Destination coordinates = latitude: {destination_lat} longitude: {destination_lon}")
         else:
-            st.info("Unable to show coordinates.")
+            st.info("Unable to show coordinates. Enter pickup and destination")
     
     with st.sidebar.expander("Dev options"):
             st.markdown("#### Raw data") # for testing

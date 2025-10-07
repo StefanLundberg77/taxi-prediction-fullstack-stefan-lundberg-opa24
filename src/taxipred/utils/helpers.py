@@ -90,29 +90,20 @@ def display_map(address):
     geolocator = Nominatim(user_agent="TAXIFY")
     default_address = "Uppsala, Sweden"
     
-    if not address:
-        address = default_address
-        location = address
-        m= folium.Map(location=[location.latitude, location.longitude], zoom_start=10)
-        folium.Marker([location.latitude, location.longitude], tooltip=location).add_to(m)
-        st_folium(m, width=800, height=200)
+    # Use default if no address is provided
+    input_address = address if address else default_address
         
-    location = geolocator.geocode(address)
+    location = geolocator.geocode(input_address)
     
-    if location:
-        m= folium.Map(location=[location.latitude, location.longitude], zoom_start=10)
-        folium.Marker([location.latitude, location.longitude], tooltip=location).add_to(m)
+    # making sure location is geocode and not None to avoid AttributeError 
+    if location is not None and hasattr(location, "latitude") and hasattr(location, "longitude"):
+        lat, lon = location.latitude, location.longitude
+        m = folium.Map(location=[lat, lon], zoom_start=10)
+        folium.Marker([lat, lon], tooltip=f"{input_address}").add_to(m)
         st_folium(m, width=800, height=200)
     else:
-        # if geocode fail, display deafault
-        fallback_location = geolocator.geocode(default_address)
-        if fallback_location:
-            m= folium.Map(location=[fallback_location.latitude, fallback_location.longitude], zoom_start=10)
-            folium.Marker([fallback_location.latitude, fallback_location.longitude], tooltip=location).add_to(m)
-            st_folium(m, width=800, height=200)
-            
-        else:
-            st.error("No address")
+        st.error(f"Could not geocode address: {input_address}")
+    
 # TODO: 
 #- finish distance_duration
 #- weather api?
