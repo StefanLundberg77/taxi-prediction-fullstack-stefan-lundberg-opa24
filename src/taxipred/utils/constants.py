@@ -10,6 +10,8 @@ TAXI_MODEL_PATH = files("taxipred").joinpath("models/xgb_model.joblib")
 
 MISSING_LABEL_PATH = files("taxipred").joinpath("data/missing_label.json")
 
+ASSETS_PATH = files("taxipred").joinpath("assets/")
+
 def get_taxi_data():
     return pd.read_csv(TAXI_CSV_PATH)
 

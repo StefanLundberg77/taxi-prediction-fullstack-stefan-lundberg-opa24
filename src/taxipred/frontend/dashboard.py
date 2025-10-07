@@ -1,20 +1,22 @@
 from taxipred.utils.helpers import read_api_endpoint, post_api_endpoint, get_distance_duration, get_coordinates, display_map
+from taxipred.utils.constants import ASSETS_PATH
 from datetime import datetime
 import streamlit as st
 import pandas as pd
 
 data = read_api_endpoint("/api")
 df = pd.DataFrame(data.json())
-
+image_path = ASSETS_PATH
 
 def layout():
     st.markdown("# TAXIFY")
-
+    
     # Initialize variables to avoid UnboundLocalError
     payload = None
     origin_lat = origin_lon = destination_lat = destination_lon = None
 
     with st.form("data"):
+        st.image(image_path / "rymdtaxi2.png", use_container_width=True)
         origin = st.text_input("Pick up adress")
         destination = st.text_input("Destination adress")
         passenger_count = st.slider("Number of passangers", 1, 8, 2)
