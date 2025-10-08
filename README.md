@@ -4,11 +4,11 @@
 
 ## Taxi Fare Prediction App
 
-1. ## Project Overview
+## 1.  Project Overview
 
 A full-stack machine learning project that predicts taxi fares based on trip details, weather, traffic, and other real-time factors. Built with FastAPI and Streamlit, using an XGBoost regression model trained on a Kaggle dataset.
 
-2. ## Tech Stack
+## 2.  Tech Stack
 
 - **Backend Framework**: FastAPI
 - **Frontend Framework**: Streamlit
@@ -19,7 +19,7 @@ A full-stack machine learning project that predicts taxi fares based on trip det
   - OpenWeatherMap API (Weather conditions)
   - FastForex API (Currency conversion)
 
-3. ## Installation
+## 3.  Installation
 
 - #### Clone the repository:
     ```bash
@@ -47,7 +47,7 @@ A full-stack machine learning project that predicts taxi fares based on trip det
 - #### Launch the dashboard:
     streamlit run taxipred/dashboard.py
 
-4. #### **Usage**
+## 4.  **Usage**
 
 - Enter pickup and destination addresses.
 - Choose departure time and number of passengers.
@@ -55,7 +55,7 @@ A full-stack machine learning project that predicts taxi fares based on trip det
 - A machine learning model predicts the estimated fare in SEK.
 - View route map, trip metrics, and prediction breakdown.
 
-5. #### API Reference
+## 5. API Reference
 
 ##### API Endpoints
 
@@ -63,7 +63,7 @@ A full-stack machine learning project that predicts taxi fares based on trip det
 - `POST /api/predict` – Accepts trip input and returns predicted price
 - `GET /api/predict/missing_labels` – Predicts prices for rows missing labels
 
-6. #### Project structure
+## 6. Project structure
 
 ```
 ├── 📂 explorations
