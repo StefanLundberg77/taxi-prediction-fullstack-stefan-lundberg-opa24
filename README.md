@@ -117,5 +117,19 @@ A full-stack machine learning project that predicts taxi fares based on trip det
         ├── 📄 SOURCES.txt
         └── 📄 top_level.txt
 ```
+# TODO:
 
+#### - More UI design with themes etc.
+
+#### - Separate User/development UI
+
+#### - Add responsive design for phone and tablet
+
+#### - Add more tracking KPIs and exporting data feature for:
+
+📊 Analyzing user behavior or model performance over time
+
+🧪 Debugging or validating predictions
+
+📁 Archiving session history for later review or training
 
