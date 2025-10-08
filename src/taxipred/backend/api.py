@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from taxipred.backend.data_processing import TaxiData, TaxiInput, PredictionOutput
 from taxipred.utils.constants import get_missing_label
 
-
+# initiate FastApi app
 app = FastAPI()
+
+# create instance of taxidata class for data and predictions
 taxi_data = TaxiData()
 
 # root page message
@@ -11,11 +13,10 @@ taxi_data = TaxiData()
 def root():
     return {"Taxi prediction API is runnin. http://127.0.0.1:8000/docs for swagger UI"}
 
-# endpoint return data in json format and limited to 100 rows
+# endpoint return source data in json format and limited to 100 rows
 @app.get("/api/")
 async def read_taxi_data():
     return taxi_data.df.head(100).to_dict(orient="records")
-
 
 # endpoint use predict method from taxi class   
 @app.post("/api/predict", response_model=PredictionOutput)
