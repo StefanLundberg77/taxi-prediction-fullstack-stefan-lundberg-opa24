@@ -5,25 +5,27 @@ import os
 import streamlit as st
 import urllib.parse
 
+# load variables from .env
 load_dotenv() 
 
+# send get request to the specified API endpoint
 def read_api_endpoint(endpoint = "/", base_url = "http://127.0.0.1:8000"):
-    url = urljoin(base_url, endpoint) # adds the str endpoint and a endpoint "/" if missing
+    url = urljoin(base_url, endpoint) # adds the str endpoint and a endpoint "/" if missing for proper url formatting
     response = requests.get(url) # returns a response object
-    
     return response
 
+# Send a post request with json payload to the specified api endpoint
 def post_api_endpoint(payload, endpoint = "/", base_url = "http://127.0.0.1:8000"):
     url = urljoin(base_url, endpoint)
     response = requests.post(url=url, json=payload)
-    
+
     return response
 
-# method: fetch current currency rate from api
+# fetch current exchange rate from api
 def get_currency_rate(default_rate: float = 10.0) -> float:
     api_key = os.getenv("FASTFOREX_API_KEY")
 
-    # incase api key missing use set rate
+    # fallback if api key missing
     if not api_key:
         print(f"API-key not found. Using fallback rate ({default_rate} USD/SEK).")
         return default_rate
@@ -42,7 +44,7 @@ def get_currency_rate(default_rate: float = 10.0) -> float:
         return default_rate
 
     
-# input 2 adresses and get distance and estimated trip duration from google maps
+# get distance, traffic level and estimated trip duration from google maps
 def get_trip_metrics(origin, destination, departure_timestamp):
     api_key = os.getenv("GOOGLE_MAPS_KEY")
     url = "https://maps.googleapis.com/maps/api/distancematrix/json"
@@ -58,11 +60,13 @@ def get_trip_metrics(origin, destination, departure_timestamp):
         response = requests.get(url, params=parameters)
         data = response.json()
         element = data["rows"][0]["elements"][0]
-
+        
+        # Convert meters to kilometers and seconds to minutes
         distance_km = element["distance"]["value"] / 1000
         duration_min = element["duration"]["value"] / 60
         duration_traffic_min = element.get("duration_in_traffic", {}).get("value", element["duration"]["value"]) / 60
 
+        # Estimate traffic level based on delay ratio
         traffic_ratio = duration_traffic_min / duration_min
         traffic_high = traffic_ratio > 1.25  # adjustable
 
@@ -73,6 +77,7 @@ def get_trip_metrics(origin, destination, departure_timestamp):
         return None, None, False
     
 
+# Get latitude and longitude for a given address using Google maps geocodeing api
 def get_coordinates(address):
     api_key = os.getenv("GOOGLE_MAPS_KEY")
     url = "https://maps.googleapis.com/maps/api/geocode/json"
@@ -89,7 +94,8 @@ def get_coordinates(address):
     except Exception as e:
         print("geocode error:", e)
         return None, None
-
+    
+# google maps iframe showing directions
 def get_map_directions(origin: str, destination: str):
     
     api_key = os.getenv("GOOGLE_MAPS_KEY")
@@ -108,7 +114,7 @@ def get_map_directions(origin: str, destination: str):
     """
     st.components.v1.html(iframe, height=650)
 
-
+# get current weather conditions (rain/snow) for a given location using openweathermap api
 def get_weather(lat,lon):
     api_key = os.getenv("OPENWEATHER_API_KEY")
     url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"

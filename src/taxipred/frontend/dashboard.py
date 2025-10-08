@@ -174,7 +174,7 @@ def layout():
                     st.markdown("### KPI Summary")
 
                     # calculate mean values for price, distance, and passenger count
-                    mean_price = round(sum(st.session_state.price_list) / st.session_state.prediction_count, 2)
+                    mean_price = round(sum(st.session_state.price_list) / st.session_state.prediction_count, 2) 
                     mean_distance = round(sum(st.session_state.distance_list) / st.session_state.prediction_count, 2)
                     mean_duration = round(sum(st.session_state.duration_list) / st.session_state.prediction_count, 2)
                     mean_passengers = round(sum(st.session_state.passenger_list) / st.session_state.prediction_count, 2)
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     layout()
 
 # TODO:
-
+# export kpi data function
 
 #   cd src/taxipred/backend/
 #   uvicorn  api:app --reload
