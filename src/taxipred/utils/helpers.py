@@ -99,14 +99,14 @@ def get_map_directions(origin: str, destination: str):
     iframe = f"""
     <iframe
       width="100%"
-      height="500"
+      height="650"
       style="border:1"
       loading="lazy"
       allowfullscreen
       src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={origin_q}&destination={dest_q}&mode=driving">
     </iframe>
     """
-    st.components.v1.html(iframe, height=500)
+    st.components.v1.html(iframe, height=650)
 
 
 def get_weather(lat,lon):
