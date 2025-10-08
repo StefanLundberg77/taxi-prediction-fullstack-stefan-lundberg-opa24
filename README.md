@@ -2,12 +2,11 @@
 
 **OPA24 OOP advanced 1**
 
-1. Project Overview
-
 ## Taxi Fare Prediction App
 
-A full-stack machine learning project that predicts taxi fares based on trip details, weather, traffic, and other real-time factors. Built with FastAPI and Streamlit, using an XGBoost regression model trained on a Kaggle dataset.
+1. Project Overview
 
+A full-stack machine learning project that predicts taxi fares based on trip details, weather, traffic, and other real-time factors. Built with FastAPI and Streamlit, using an XGBoost regression model trained on a Kaggle dataset.
 
 2. Tech Stack
 
