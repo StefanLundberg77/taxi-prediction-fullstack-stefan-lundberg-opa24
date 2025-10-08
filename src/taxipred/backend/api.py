@@ -5,7 +5,7 @@ from taxipred.utils.constants import get_missing_label
 # initiate FastApi app
 app = FastAPI()
 
-# create instance of taxidata class for data and predictions
+# create a instance of taxidata class for data handling and predictions
 taxi_data = TaxiData()
 
 # root page message
@@ -38,15 +38,5 @@ async def test_predict_missing_labels():
         
     return results  # export?
 
-
-
 # TODO: 
     # - start and shutdown handling?
-
-
-# @app.post("/api/predict", response_model=PredictionOutput)
-# def predict_flower(payload: IrisInput):
-#     data_to_predict = pd.DataFrame([payload.model_dump()])
-#     clf = joblib.load(MODELS_PATH / "iris_classifier.joblib")
-#     prediction = clf.predict(data_to_predict)
-#     return {"predicted_flower": prediction[0]}

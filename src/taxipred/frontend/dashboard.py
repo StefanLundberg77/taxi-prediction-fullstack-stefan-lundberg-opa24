@@ -8,19 +8,34 @@ from datetime import datetime, date
 import streamlit as st
 import pandas as pd
 
+# Load initial dataset from API and convert to df
 data = read_api_endpoint("/api")
 df = pd.DataFrame(data.json())
+
+# path to assets
 image_path = ASSETS_PATH
 
 def layout():
-
+    
+    # initialize tracking of input for kpi
+    if "prediction_count" not in st.session_state:
+        st.session_state.prediction_count = 0
+    if "price_list" not in st.session_state:
+        st.session_state.price_list = []
+    if "distance_list" not in st.session_state:
+        st.session_state.distance_list = []
+    if "duration_list" not in st.session_state:
+        st.session_state.duration_list = []   
+    if "passenger_list" not in st.session_state:
+        st.session_state.passenger_list = []
+    
     # Add container with border
     with st.container(border=True):
 
         # splitting layout into two columns
         col1, col2 = st.columns([0.4, 0.6])#, border=True)
         
-        # Initiate variables to avoid UnboundLocalError
+        # Initialize variables to avoid UnboundLocalError
         payload = None
         origin_lat = origin_lon = destination_lat = destination_lon = None
         predicted_price = None
@@ -31,8 +46,8 @@ def layout():
         response = None
         weather_rain = weather_snow = False
 
+        # left column with input form
         with col1:
-
             # form with image, input boxes, and submit button
             with st.form("data"):
                 st.image(image_path / "taxify.png")  
@@ -50,7 +65,7 @@ def layout():
             # If form successfully submitted
             if submitted:
                 with st.spinner("Calculating route and price..."):
-                    # if pick up address/destination submitted successfully else warning
+                    # if pick up address/destination submitted successfully
                     if origin and destination:
     
                         # Get trip metrics (distance, duration, traffic)
@@ -59,7 +74,7 @@ def layout():
                             st.error("Unable to get distance or duration")
                             return
 
-                        # Get coordinates from geocode API
+                        # Get coordinates for origin, destination from geocode API
                         origin_lat, origin_lon = get_coordinates(origin)
                         destination_lat, destination_lon = get_coordinates(destination)
                         if None in [origin_lat, origin_lon, destination_lat, destination_lon]:
@@ -72,7 +87,7 @@ def layout():
                         weather_rain = origin_rain or destination_rain
                         weather_snow = origin_snow or destination_snow
                         
-                        # set current time
+                        # get current time
                         now = datetime.now()
 
                         # set input payload for prediction
@@ -95,7 +110,7 @@ def layout():
                         response = post_api_endpoint(payload, endpoint="/api/predict")
                     else:
                         st.warning("Enter both pickup and destination")
-
+        # right column: map
         with col2:
             # Show map (either default or predicted route)
             if submitted and origin and destination:
@@ -103,6 +118,7 @@ def layout():
             else:
                 get_map_directions("Göteborg, Sverige", "Göteborg, Sverige")
                 
+        # Results container. shows prediction and trip details
         if submitted:        
             with st.container(border=True):        
                 if response and response.status_code == 200:
@@ -112,7 +128,7 @@ def layout():
                     st.info(f"Travel time: {duration_min:.1f} minutes")
                     st.info(f"Traffic: {'High' if traffic_high else 'Normal'}")
                     
-                    # list for rain or snow weather
+                    # weather summary
                     weather_status = []
                     if weather_rain:
                         weather_status.append("Raining")
@@ -122,11 +138,19 @@ def layout():
                     # concatenate if both rain and snow
                     if weather_status:
                         st.info(f"Weather: {', '.join(weather_status) if weather_status else 'Normal'}")
+                    
+                    # appending input predictons for kpi    
+                    st.session_state.prediction_count += 1
+                    st.session_state.price_list.append(predicted_price)
+                    st.session_state.distance_list.append(distance_km)
+                    st.session_state.duration_list.append(duration_min)
+                    st.session_state.passenger_list.append(passenger_count)
+                    
                 else:
                     st.error("Unable to get predicted price")   
                     
 
-    # Sidebar with raw data for testing?
+    # Sidebar developing options
     with st.sidebar.expander("Dev options"):
         # Show payload if available
         if submitted:
@@ -143,31 +167,45 @@ def layout():
                     st.info(f"Destination coordinates = latitude: {destination_lat} longitude: {destination_lon}")
                 else:
                     st.info("Unable to show coordinates. Enter pickup and destination")
-        
-        st.markdown("#### Raw data")
-        st.dataframe(df)
+            
+            # display kpi summary if at least one prediction done
+            with st.expander("Kpi"):
+                if st.session_state.prediction_count > 0:
+                    st.markdown("### KPI Summary")
 
+                    # calculate mean values for price, distance, and passenger count
+                    mean_price = round(sum(st.session_state.price_list) / st.session_state.prediction_count, 2)
+                    mean_distance = round(sum(st.session_state.distance_list) / st.session_state.prediction_count, 2)
+                    mean_duration = round(sum(st.session_state.duration_list) / st.session_state.prediction_count, 2)
+                    mean_passengers = round(sum(st.session_state.passenger_list) / st.session_state.prediction_count, 2)
+
+                    # display metrics in the sidebar
+                    st.metric("Predictions", st.session_state.prediction_count)
+                    st.metric("Mean Price", f"{mean_price} SEK")
+                    st.metric("Mean Distance", f"{mean_distance} kilometers") 
+                    st.metric("Mean Duration", f"{mean_duration} minutes") 
+                    st.metric("Mean Passengers", mean_passengers)
+                    
+        with st.expander("Data"):
+            # show raw data from api 
+            st.markdown("#### Raw data")
+            st.dataframe(df)
+                
+                
+                
+
+# run layout when script executed
 if __name__ == '__main__':
     layout()
 
 # TODO:
-#   - Weather
-#   - Kpi?
-#   - passangers count for statistics
-#   - trip count or submit count?
+
 
 #   cd src/taxipred/backend/
 #   uvicorn  api:app --reload
 
 #   cd src/taxipred/frontend/
 #   streamlit run dashboard.py
-
-# start_time = st.slider(
-#         "Boking",
-#             value=datetime("YYYY", "DD", "MM", "hh", "mm"),
-#             format="MM/DD/YY - hh:mm",
-#         )
-#         st.write("Start time:", start_time)
 
 # Feat– feature
 

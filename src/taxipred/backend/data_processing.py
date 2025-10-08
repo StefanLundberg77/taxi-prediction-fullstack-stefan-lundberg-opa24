@@ -9,7 +9,7 @@ from taxipred.utils.helpers import get_currency_rate
 # load .env file with api key etc.
 load_dotenv() 
 
-# 
+# input class for prediction requests
 class TaxiInput(BaseModel):
     Trip_Distance_km: float = Field(ge=0, le=10000)
     Passenger_Count: float = Field(ge=0, le=9)
@@ -23,100 +23,41 @@ class TaxiInput(BaseModel):
     Traffic_Conditions_High: bool
     Weather_Rain: bool
     Weather_Snow: bool
-
+    
+# output class for prediction responses
 class PredictionOutput(BaseModel):
     predicted_trip_price: float = Field(ge=0.1, description="Predicted price in SEK.")
 
-#     
+# main class for handling predicts and data    
 class TaxiData:
     def __init__(self):
         self.df = get_clean_data()
         self.model = get_taxi_model()
+        # get currency conversion from USD to SEK
         self.conversion_rate = get_currency_rate()
 
+    # return dataframe to json method
     def to_json(self):
         return json.loads(self.df.to_json(orient = "records"))
         
-    
-    # trip price prediction method
+    # trip price prediction based on input features
     def predict(self, input_data: TaxiInput) -> PredictionOutput:
 
         # Convert input to DataFrame
         input_dict = input_data.model_dump()
         input_df = pd.DataFrame([input_dict])
 
-        # Remove  
+        # Remove target column (y) if in input 
         if "Trip_Price" in input_df.columns:
             input_df = input_df.drop(columns=["Trip_Price"])
         
-        # Prediction
+        # Run prediction model and convert currency
         price_prediction = self.model.predict(input_df)[0]
         sek_price = round(float(price_prediction) * self.conversion_rate, 2)
 
         return PredictionOutput(predicted_trip_price=sek_price)
 
-        
-
-
+# for testing: instantiation
 if __name__ == "__main__":
     taxi_data = TaxiData()
-    #pprint(taxi_data.to_json())
     
-    # payload = {
-    #     "Trip_Distance_km": 12,
-    #     "Passenger_Count" : 2,
-    #     "Base_Fare": 2,
-    #     "Per_Km_Rate": 2,
-    #     "Per_Minute_Rate": 0.5,
-    #     "Trip_Duration_Minutes": 32, 
-    #     "Time_of_Day_Afternoon": True,
-    #     "Day_of_Week_Weekday": False,
-    #     "Traffic_Conditions_High": False,
-    #     "Weather_Rain": True,
-    #     "Weather_Snow": False
-    # }
-    
-
-
-# input_obj = TaxiInput(**payload)
-# pprint(taxi_data.predict(input_obj))
-
-
-
-#  #   Column                   Non-Null Count  Dtype  
-# ---  ------                   --------------  -----  
-#  0   Trip_Distance_km         1000 non-null   float64
-#  1   Passenger_Count          1000 non-null   float64
-#  2   Base_Fare                1000 non-null   float64
-#  3   Per_Km_Rate              1000 non-null   float64
-#  4   Per_Minute_Rate          1000 non-null   float64
-#  5   Trip_Duration_Minutes    1000 non-null   float64
-#  6   Time_of_Day_Afternoon    1000 non-null   bool   
-#  7   Day_of_Week_Weekday      1000 non-null   bool   
-#  8   Traffic_Conditions_High  1000 non-null   bool   
-#  9   Weather_Rain             1000 non-null   bool   
-#  10  Weather_Snow             1000 non-null   bool   
-#  11  Trip_Price               1000 non-null   float64
-    
-# Index(['Trip_Distance_km', 'Base_Fare', 'Per_Km_Rate', 'Per_Minute_Rate',
-#        'Trip_Duration_Minutes', 'Time_of_Day_Afternoon', 'Day_of_Week_Weekday',
-#        'Traffic_Conditions_High', 'Weather_Rain', 'Weather_Snow',
-#        'Trip_Price'],
-#       dtype='object')
-
-# drop(["Time_of_Day_Night",
-# "Time_of_Day_Evening",
-# "Time_of_Day_Morning",
-# "Day_of_Week_Weekend",
-# "Traffic_Conditions_Low",
-# "Weather_Clear",
-# "Traffic_Conditions_Medium"],
-# axis="columns"
-# )"
-
-# count	mean	std	min	25%	50%	75%	max
-# Trip_Distance_km	1000.0	26.153327	15.521566	1.23	13.1075	26.995000	37.7825	74.795
-# Base_Fare	1000.0	3.502989	0.848107	2.01	2.7700	3.502989	4.2025	5.000
-# Per_Km_Rate	1000.0	1.233316	0.418922	0.50	0.8700	1.233316	1.5800	2.000
-# Per_Minute_Rate	1000.0	0.292916	0.112662	0.10	0.1975	0.292916	0.3825	0.500
-# Trip_Duration_Minutes	1000.0	62.118116	31.339413	5.01	37.1075	62.118116	87.7750	119.840
