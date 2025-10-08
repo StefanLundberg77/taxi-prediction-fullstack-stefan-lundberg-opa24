@@ -1,14 +1,8 @@
 import requests 
 from urllib.parse import urljoin
-from pprint import pprint
-from datetime import datetime
 from dotenv import load_dotenv
 import os
-import folium
-from streamlit_folium import st_folium
-from geopy.geocoders import Nominatim
 import streamlit as st
-import time
 import urllib.parse
 
 load_dotenv() 
@@ -76,19 +70,8 @@ def get_trip_metrics(origin, destination, departure_timestamp):
     
     except Exception as e:
         print("Trip metrics error:", e)
-        return {} # or None...
+        return None, None, False
     
-    # response = requests.get(url, parameters)
-    # data = response.json()
-    
-    # try:
-    #     element = data["rows"][0]["elements"][0]
-    #     distance_km = element["distance"]["value"] / 1000  # meters to km
-    #     duration_min = element["duration"]["value"] / 60   # seconds to minutes
-    #     return distance_km, duration_min
-    # except Exception as e:
-    #     print("Error:", e)
-    #     return None, None
 
 def get_coordinates(address):
     api_key = os.getenv("GOOGLE_MAPS_KEY")
@@ -118,53 +101,18 @@ def get_map_directions(origin: str, destination: str):
     <iframe
       width="100%"
       height="500"
-      style="border:0"
+      style="border:1"
       loading="lazy"
       allowfullscreen
       src="https://www.google.com/maps/embed/v1/directions?key={api_key}&origin={origin_q}&destination={dest_q}&mode=driving">
     </iframe>
     """
-    st.components.v1.html(iframe, height=530)
-    
-"""
-def display_map(origin_address=None, destination_address=None):
-    geolocator = Nominatim(user_agent="TAXIFY", timeout=5)
-    origin = origin_address or "malmö"
-    destination = destination_address or "malmö"
-    
-    #default_address = "Malmö, Sweden"
-    # Use default if no address is provided
-    #input_address = address if address else default_address
-        
-    origin_location = geolocator.geocode(origin)
-    destination_location = geolocator.geocode(destination)
-    
-    # making sure location is geocode and not None to avoid AttributeError 
-    if origin_location and destination_location:# is not None
-        #origin_coords = [hasattr(origin_location, "latitude"), hasattr(origin_location, "longitude")] 
-        #destination_coords = [hasattr(destination_location, "latitude"), hasattr(destination_location, "longitude")] 
+    st.components.v1.html(iframe, height=500)
 
-        origin_coords = [origin_location.latitude, origin_location.longitude]
-        destination_coords = [destination_location.latitude, destination_location.longitude]
-        
-        m= folium.Map(location=origin_coords, zoom_start=10)
-
-        # lat, lon = location.latitude, location.longitude
-        # add markers
-        folium.Marker(origin_coords, tooltip=f"Start: {origin}").add_to(m)
-        folium.Marker(destination_coords, tooltip=f"Destination: {destination}").add_to(m)
-        
-        # add line between markers
-        folium.PolyLine([origin_coords, destination_coords], color="blue", weight=3).add_to(m)
-        
-        st_folium(m,width="stretch", height=530)
-    else:
-        st.error("Could not geocode input addresses")
-"""
     
 # TODO: 
-#- finish distance_duration
+#- finish distance_duration /done
 #- weather api?
-#- traffic condition api?
+#- traffic condition api? /done
 #- map /done
 #- error, exception handling

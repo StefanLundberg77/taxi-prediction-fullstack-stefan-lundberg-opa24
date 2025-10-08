@@ -9,7 +9,7 @@ taxi_data = TaxiData()
 # root page message
 @app.get("/")
 def root():
-    return {"Taxi prediction API is runnin add endpoint /docs to url for swagger UI"}
+    return {"Taxi prediction API is runnin. http://127.0.0.1:8000/docs for swagger UI"}
 
 # endpoint return data in json format and limited to 100 rows
 @app.get("/api/")
@@ -35,7 +35,7 @@ async def test_predict_missing_labels():
         row["Predicted_Trip_Price"] = prediction.predicted_trip_price
         results.append(row)
         
-    return results  
+    return results  # export?
 
 
 
