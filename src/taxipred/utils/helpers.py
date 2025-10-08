@@ -46,7 +46,7 @@ def get_currency_rate(default_rate: float = 10.0) -> float:
 def get_trip_metrics(origin, destination, departure_timestamp):
     api_key = os.getenv("GOOGLE_MAPS_KEY")
     url = "https://maps.googleapis.com/maps/api/distancematrix/json"
-    #departure_time = int(time.time())
+
     parameters = {
         "origins": origin,
         "destinations": destination,
@@ -81,7 +81,6 @@ def get_coordinates(address):
         "key": api_key
     }
         
-    
     response = requests.get(url, params=params)
     data = response.json()
     try:
@@ -109,6 +108,24 @@ def get_map_directions(origin: str, destination: str):
     """
     st.components.v1.html(iframe, height=500)
 
+
+def get_weather(lat,lon):
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+
+    try:
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        weather = data["weather"][0]["main"]
+
+        rain = "Rain" in weather
+        snow = "Snow" in weather
+        return rain, snow
+    except Exception as e:
+        print("OpenWeather error:", e)
+        return False, False
+
+    
     
 # TODO: 
 #- finish distance_duration /done

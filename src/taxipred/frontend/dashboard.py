@@ -1,7 +1,7 @@
 from taxipred.utils.helpers import (
     read_api_endpoint, post_api_endpoint,
     get_trip_metrics, get_coordinates,
-    get_map_directions
+    get_map_directions, get_weather
 )
 from taxipred.utils.constants import ASSETS_PATH
 from datetime import datetime, date
@@ -72,6 +72,13 @@ def layout():
                             st.error("Unable to fetch coordinates for one or both addresses.")
                             return
 
+                        # get weather from  openweather checking pickup and destination
+                        origin_rain, origin_snow = get_weather(origin_lat, origin_lon)
+                        destination_rain, destination_snow = get_weather(destination_lat, destination_lon)
+
+                        weather_rain = origin_rain or destination_rain
+                        weather_snow = origin_snow or destination_snow
+                        
                         # set current time
                         now = datetime.now()
 
@@ -87,18 +94,34 @@ def layout():
                             "Per_Km_Rate": 1.2,  # Mean
                             "Per_Minute_Rate": 0.3,  # Mean
                             "Traffic_Conditions_High": traffic_high,
-                            "Weather_Rain": False,
-                            "Weather_Snow": False
+                            "Weather_Rain": weather_rain,
+                            "Weather_Snow": weather_snow
+
                         }
 
                         # Send payload to prediction API
                         response = post_api_endpoint(payload, endpoint="/api/predict")
+
                         if response and response.status_code == 200:
                             predicted_price = response.json().get("predicted_trip_price")
                             st.success(f"Price: {predicted_price} SEK")
                             st.info(f"Distance: {distance_km:.2f} km")
                             st.info(f"Travel time: {duration_min:.1f} minutes")
                             st.info(f"Traffic: {'High' if traffic_high else 'Normal'}")
+                            
+                            # list for rain or snow weather
+                            weather_status = []
+
+                            if weather_rain:
+                                weather_status.append("Raining")
+                            if weather_snow:
+                                weather_status.append("Snowing")
+                            # concatenate if both rain and snow
+                            if weather_status:
+                                st.info(f"Weather: {', '.join(weather_status)}")
+                            else:
+                                st.info("Weather: Normal")
+
                         else:
                             st.error("Unable to get predicted price")
                     else:
@@ -110,8 +133,7 @@ def layout():
                 get_map_directions(origin, destination)
             else:
                 get_map_directions("Göteborg, Sverige", "Göteborg, Sverige")
-            
-                    
+           
             # Show payload if available
             with st.expander("Show payload"):
                 if payload:
@@ -138,6 +160,8 @@ if __name__ == '__main__':
 # TODO:
 #   - Weather
 #   - Kpi?
+#   - passangers count for statistics
+#   - trip count or submit count?
 
 #   cd src/taxipred/backend/
 #   uvicorn  api:app --reload
