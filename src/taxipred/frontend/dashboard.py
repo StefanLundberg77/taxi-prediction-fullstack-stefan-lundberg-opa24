@@ -13,16 +13,22 @@ df = pd.DataFrame(data.json())
 image_path = ASSETS_PATH
 
 def layout():
-    # Adds container with border
+
+    # Add container with border
     with st.container(border=True):
 
         # splitting layout into two columns
         col1, col2 = st.columns([1, 2])
-          
-        with col2:
-            # display map in col 2 default sweden
-            get_map_directions("Göteborg, Sverige", "Göteborg, Sverige")
-                
+        
+        # Initiate variables to avoid UnboundLocalError
+        payload = None
+        origin_lat = origin_lon = destination_lat = destination_lon = None
+        predicted_price = None
+        traffic_high = False
+        distance_km = duration_min = None
+        origin = destination = ""
+        submitted = False
+
         with col1:
             # Initialize variables to avoid UnboundLocalError
             payload = None
@@ -47,65 +53,65 @@ def layout():
 
             # If form successfully submitted
             if submitted:
-                
-                # if pick up address/destination submitted successfully else warning
-                if origin and destination:
-                    
-                    # Get trip metrics (distance, duration, traffic)
-                    distance_km, duration_min, traffic_high = get_trip_metrics(origin, destination, departure_timestamp)
-                    
-                    if distance_km is None or duration_min is None:
-                        st.error("Unable to get distance or duration")
-                        return
+                with st.spinner("Calculating route and price..."):
+                    # if pick up address/destination submitted successfully else warning
+                    if origin and destination:
+    
+                        # Get trip metrics (distance, duration, traffic)
+                        distance_km, duration_min, traffic_high = get_trip_metrics(origin, destination, departure_timestamp)
+                        
+                        if distance_km is None or duration_min is None:
+                            st.error("Unable to get distance or duration")
+                            return
 
-                    # Get coordinates from geocode API
-                    origin_lat, origin_lon = get_coordinates(origin)
-                    destination_lat, destination_lon = get_coordinates(destination)
+                        # Get coordinates from geocode API
+                        origin_lat, origin_lon = get_coordinates(origin)
+                        destination_lat, destination_lon = get_coordinates(destination)
 
-                    if None in [origin_lat, origin_lon, destination_lat, destination_lon]:
-                        st.error("Unable to fetch coordinates for one or both addresses.")
-                        return
+                        if None in [origin_lat, origin_lon, destination_lat, destination_lon]:
+                            st.error("Unable to fetch coordinates for one or both addresses.")
+                            return
 
-                    # set current time
-                    now = datetime.now()
+                        # set current time
+                        now = datetime.now()
 
-                    # Prepare input payload for prediction
-                    payload = {
-                        "Trip_Distance_km": distance_km,
-                        "Trip_Duration_Minutes": duration_min,
-                        "Time_of_Day_Afternoon": 12 <= now.hour < 18,
-                        "Time_of_Day_Evening": 18 <= now.hour < 24,
-                        "Passenger_Count": passenger_count,
-                        "Day_of_Week_Weekday": now.weekday() < 5,
-                        "Base_Fare": 3.5,  # Mean
-                        "Per_Km_Rate": 1.2,  # Mean
-                        "Per_Minute_Rate": 0.3,  # Mean
-                        "Traffic_Conditions_High": traffic_high,
-                        "Weather_Rain": False,
-                        "Weather_Snow": False
-                    }
+                        # Prepare input payload for prediction
+                        payload = {
+                            "Trip_Distance_km": distance_km,
+                            "Trip_Duration_Minutes": duration_min,
+                            "Time_of_Day_Afternoon": 12 <= now.hour < 18,
+                            "Time_of_Day_Evening": 18 <= now.hour < 24,
+                            "Passenger_Count": passenger_count,
+                            "Day_of_Week_Weekday": now.weekday() < 5,
+                            "Base_Fare": 3.5,  # Mean
+                            "Per_Km_Rate": 1.2,  # Mean
+                            "Per_Minute_Rate": 0.3,  # Mean
+                            "Traffic_Conditions_High": traffic_high,
+                            "Weather_Rain": False,
+                            "Weather_Snow": False
+                        }
 
-                    # Send payload to prediction API
-                    response = post_api_endpoint(payload, endpoint="/api/predict")
-                    if response and response.status_code == 200:
-                        predicted_price = response.json().get("predicted_trip_price")
-                        st.success(f"Price: {predicted_price} SEK")
-                        st.info(f"Distance: {distance_km:.2f} km")
-                        st.info(f"Travel time: {duration_min:.1f} minutes")
-                        st.info(f"Traffic: {'High' if traffic_high else 'Normal'}")
+                        # Send payload to prediction API
+                        response = post_api_endpoint(payload, endpoint="/api/predict")
+                        if response and response.status_code == 200:
+                            predicted_price = response.json().get("predicted_trip_price")
+                            st.success(f"Price: {predicted_price} SEK")
+                            st.info(f"Distance: {distance_km:.2f} km")
+                            st.info(f"Travel time: {duration_min:.1f} minutes")
+                            st.info(f"Traffic: {'High' if traffic_high else 'Normal'}")
+                        else:
+                            st.error("Unable to get predicted price")
                     else:
-                        st.error("Unable to get predicted price")
-                else:
-                    st.warning("Enter both pickup and destination")
+                        st.warning("Enter both pickup and destination")
 
         with col2:
-
-            # Show map directions if addresses are provided otherwise default sweden
+            # Show map (either default or predicted route)
             if submitted and origin and destination:
                 get_map_directions(origin, destination)
-            #else:
-                get_map_directions("Sweden", "Sweden")
+            else:
+                get_map_directions("Göteborg, Sverige", "Göteborg, Sverige")
             
+                    
             # Show payload if available
             with st.expander("Show payload"):
                 if payload:
@@ -128,6 +134,10 @@ def layout():
 
 if __name__ == '__main__':
     layout()
+
+# TODO:
+#   - Weather
+#   - Kpi?
 
 #   cd src/taxipred/backend/
 #   uvicorn  api:app --reload
