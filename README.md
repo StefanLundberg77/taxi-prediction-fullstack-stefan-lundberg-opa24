@@ -4,11 +4,11 @@
 
 ## Taxi Fare Prediction App
 
-1. Project Overview
+1. ## Project Overview
 
 A full-stack machine learning project that predicts taxi fares based on trip details, weather, traffic, and other real-time factors. Built with FastAPI and Streamlit, using an XGBoost regression model trained on a Kaggle dataset.
 
-2. Tech Stack
+2. ## Tech Stack
 
 - **Backend Framework**: FastAPI
 - **Frontend Framework**: Streamlit
@@ -19,37 +19,35 @@ A full-stack machine learning project that predicts taxi fares based on trip det
   - OpenWeatherMap API (Weather conditions)
   - FastForex API (Currency conversion)
 
-3. Installation
+3. ## Installation
 
-- Clone the repository:
+- #### Clone the repository:
     ```bash
     git clone https://github.com/StefanLundberg77/taxi-prediction-fullstack-stefan-lundberg-opa24.git
 
--  Create and activate a virtual environment:
+-  #### Create and activate a virtual environment:
     uv venv # or other venv
     source venv\Scripts\activate # or .venv/bin/activate if mac
 
-- Install dependencies:
+- #### Install dependencies:
     uv pip install -r requirements.txt
 
--  Install setuptools:
+-  #### Install setuptools:
     uv pip install setuptools
     uv pip install -e .
 
-- Set up your .env file with API keys:
+- #### Set up your .env file with API keys:
     GOOGLE_MAPS_KEY=your_google_maps_api_key
     OPENWEATHER_API_KEY=your_openweather_api_key
     FASTFOREX_API_KEY=your_fastforex_api_key
 
-- Start the backend:
+- #### Start the backend:
     uvicorn taxipred.api:app --reload
 
-- Launch the dashboard:
+- #### Launch the dashboard:
     streamlit run taxipred/dashboard.py
 
-
-
-4. **Usage**
+4. #### **Usage**
 
 - Enter pickup and destination addresses.
 - Choose departure time and number of passengers.
@@ -57,15 +55,15 @@ A full-stack machine learning project that predicts taxi fares based on trip det
 - A machine learning model predicts the estimated fare in SEK.
 - View route map, trip metrics, and prediction breakdown.
 
-5. API Reference
+5. #### API Reference
 
-### API Endpoints
+##### API Endpoints
 
 - `GET /api/` – Returns sample taxi trip data
 - `POST /api/predict` – Accepts trip input and returns predicted price
 - `GET /api/predict/missing_labels` – Predicts prices for rows missing labels
 
-Project structure
+6. #### Project structure
 
 ```
 ├── 📂 explorations
